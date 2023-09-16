@@ -12,11 +12,13 @@ def sql(sql):
         cur.execute(sql)
         db.commit()
 
-# Create a table to represent decks
-sql('CREATE TABLE decks (id SERIAL PRIMARY KEY, name VARCHAR(255), user_id INT NOT NULL, FOREIGN KEY (user_id) REFERENCES users (id));')
+sql('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name VARCHAR(255));')
+
+# Create a table to represent the global decks
+sql('CREATE TABLE IF NOT EXISTS decks (id SERIAL PRIMARY KEY, name TEXT, user_id INT NOT NULL, FOREIGN KEY (user_id) REFERENCES users (id));')
 
 # Create a table to represent flashcards
-sql('CREATE TABLE flashcards (id SERIAL PRIMARY KEY, question TEXT, answer TEXT, deck_id INT NOT NULL, FOREIGN KEY (deck_id) REFERENCES decks (id));')
+sql('CREATE TABLE IF NOT EXISTS flashcards (id SERIAL PRIMARY KEY, question TEXT, answer TEXT, deck_id INT NOT NULL, FOREIGN KEY (deck_id) REFERENCES decks (id));')
 
 def build_deck(text):
     # Generate prompt based on text from body
