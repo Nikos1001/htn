@@ -85,7 +85,7 @@ def execute_query(query):
 execute_query("CREATE TABLE IF NOT EXISTS deck_list (id SERIAL PRIMARY KEY, deck JSON)")
 
 def add_to_db(deck):
-    add_query = f"INSERT INTO deck_list (deck) VALUES {deck}"
+    add_query = f"INSERT INTO deck_list (deck) VALUES ('" + f"{deck}".replace('"', "\\\"").replace('\'', '"') + "')"
     print(deck) #DA!!! print statement
     execute_query(add_query)
 
