@@ -178,7 +178,7 @@ export default function Home() {
       </Flex>
     </Modal>
     {deck && <Flex justify='center' align='center' direction='column' style={{position: 'absolute', top: '0', left: '0', width: '100vw', height: '100vh', pointerEvents: 'none'}}>
-      <Title style={{marginBottom: '50px'}}>{deck.name}</Title>
+      <Title style={{marginBottom: '50px'}}>{deck.title}</Title>
       <Carousel getEmblaApi={setEmbla} style={{overflow: 'inherit'}} slideGap='1000px' loop slideSize='70%' w='100%' withControls={false} mx='auto'>
         {concat(deck.cards, deck.cards).map((card, i) =>
           <Carousel.Slide>
