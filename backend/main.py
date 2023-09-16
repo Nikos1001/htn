@@ -72,8 +72,9 @@ def sql(query):
     except OperationalError as err:
         print(f"Error {err}")
 
+db.autocommit = True #disgusting line of code, figure this out!
+
 def execute_query(query):
-    db.autocommit = True
     cursor = db.cursor()
     try:
         cursor.execute(query)
@@ -83,10 +84,23 @@ def execute_query(query):
 
 execute_query("CREATE TABLE IF NOT EXISTS deck_list (id SERIAL PRIMARY KEY, deck JSON)")
 
-def add_to_db(json):
-    add_query = f"INSERT INTO deck_list (deck) VALUES {json}"
-    print(json) #DA!!! print statement
+def add_to_db(deck):
+    add_query = f"INSERT INTO deck_list (deck) VALUES {deck}"
+    print(deck) #DA!!! print statement
     execute_query(add_query)
+
+def retrieve_db():
+    deck_list = []
+
+    cursor = db.cursor()
+    try:
+        cursor.execute("SELECT * FROM deck_list")
+        for deck in cursor.fetchall():
+            deck_list.append(deck)
+    except OperationalError as err:
+        print(f"The error '{err}' occurred")
+
+    return deck_list
 
 app = Flask(__name__)
 CORS(app)
