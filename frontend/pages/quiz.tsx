@@ -1,6 +1,6 @@
 'use client';
 
-import { Flex, Textarea, Title, Button, Loader } from "@mantine/core";
+import { Flex, Textarea, Title, Button, Loader, Text } from "@mantine/core";
 import { Flashdeck, apiRootURL, post } from '../common'
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -61,7 +61,7 @@ export default function Quiz() {
                 return <Loader color="lime" variant="bars"/>;
             case 'done':
                 return <>
-                    {feedback}
+                    <Text style={{maxWidth: '50ch'}}>{feedback}</Text>
                     <Button style={{marginTop: '50px'}} variant='gradient' gradient={buttonGradient} onClick={() => {
                         if(questions && currQuestion + 1 < questions.length) {
                             setCurrQuestion(currQuestion + 1);

@@ -201,14 +201,14 @@ def answer():
     answer = data['answer']
     prompt = ''
     prompt += text 
-    prompt += '\nGiven the material above, check if the given answer correctly answers the question and provide feedback if it does not.'
+    prompt += '\n State if the answer to the question is correct or incorrect. If incorrect, explain why \n'
     prompt += 'Example (FOLLOW THIS FORMAT):\n'
     prompt += 'Question: What is the capital of England?\n'
     prompt += 'Answer: London is the capital of England.\n'
     prompt += 'Feedback: Correct.\n'
     prompt += 'Question: What is the capital of France?\n'
     prompt += 'Answer: Rome is the capital of France.\n'
-    prompt += 'Feedback: Rome is the capital of Italy, not France. The capital of France is paris.\n\n'
+    prompt += 'Feedback: Incorrect. Rome is the capital of Italy, not France. The capital of France is paris.\n\n'
     prompt += '\nQuestion: ' + question + '\n'
     prompt += 'Answer: ' + answer + '\n'
     prompt += 'Feedback:\n'
