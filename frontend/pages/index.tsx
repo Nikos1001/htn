@@ -170,11 +170,9 @@ export default function Home() {
         <Title>You have no flashdecks yet.</Title>
       </>}
     </Flex>
-    <Button style={{position: 'absolute', left: 'calc(100vw - 150px)', top: 'calc(100vh - 70px)'}} variant='gradient' gradient={buttonGradient} onClick={() => {
-      if(!deck)
-        return;
+    {deck && <Button style={{position: 'absolute', left: 'calc(100vw - 150px)', top: 'calc(100vh - 70px)'}} variant='gradient' gradient={buttonGradient} onClick={() => {
       localStorage.setItem('deck', JSON.stringify(deck));
       router.push('/quiz');
-    }}>Quiz Me...</Button>
+    }}>Quiz Me...</Button>}
   </>; 
 }

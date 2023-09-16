@@ -30,7 +30,7 @@ async function post(url: string, data: any) {
 }
 
 const apiRootURL = () => {
-  return 'http://' + window.location.hostname + ':3001';
+  return 'http://' + window.location.hostname + ':8080';
 }; 
 
 export { get, post, apiRootURL };
