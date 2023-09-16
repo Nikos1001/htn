@@ -26,7 +26,7 @@ def build_deck(text):
     response = co.generate(
         model = "command-nightly", 
         prompt = profanity_filter_prompt,
-        tokens = 7)
+        max_tokens = 7)
     
     # Check if the response generation is yes, that means that the content is vulgar otherwise its all clear
     if (response.generations[0].text.lower() == 'yes'):
