@@ -24,7 +24,7 @@ def build_deck(text, title = ""):
                 Text input: 
                 """ 
     prompt += text
-    prompt += '\nPlease focus on this topic when creating your questions: ' + title + '\n'
+    prompt += '\nPlease use ' + title + ' in your questions.\n'
     prompt += "List of questions and answers: \n"
 
     print('!!!!!!' + title)
@@ -172,7 +172,7 @@ def question():
     response = co.generate(
         model="command-nightly", 
         prompt=prompt,
-        max_tokens=100
+        max_tokens=600
     )
 
     raw_data = ""
@@ -188,6 +188,48 @@ def question():
             questions.append(question) 
 
     return questions 
+
+@app.route('/answer', methods=['POST'])
+def answer():
+    data = request.get_json()
+    text = data['text']
+    question = data['question']
+    answer = data['answer']
+    prompt = 'This is a bot that checks the correctness of an answer to a question based on the input text and provides feedback for the answer.\n'
+    prompt += 'Input Text:\n'
+    prompt += text 
+    prompt += 'Example (FOLLOW THIS FORMAT):\n'
+    prompt += 'Question: What is the capital of England?\n'
+    prompt += 'Answer: London is the capital of England.\n'
+    prompt += 'Feedback: Correct.\n'
+    prompt += 'Question: What is the capital of France?\n'
+    prompt += 'Answer: Rome is the capital of France.\n'
+    prompt += 'Feedback: Rome is the capital of Italy, not France. The capital of France is paris.\n\n'
+    prompt += '\nQuestion: ' + question + '\n'
+    prompt += 'Answer: ' + answer + '\n'
+    prompt += 'Feedback:\n'
+
+    response = co.generate(
+        model="command-nightly", 
+        prompt=prompt,
+        max_tokens=600
+    )
+
+    raw_data = ""
+
+    for generation in response.generations:
+        raw_data += generation.text
+
+    print(raw_data)
+
+    lines = raw_data.split('\n')
+    feedbacks = []
+    for line in lines:
+        if 'feedback:' in line.lower():
+            feedback = line.replace('Feedback:', '').replace('feedback:', '')
+            feedbacks.append(feedback) 
+
+    return {'feedback': lines[0]} 
 
 
 app.run(port=8080)
