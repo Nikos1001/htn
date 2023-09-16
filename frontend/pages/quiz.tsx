@@ -1,7 +1,7 @@
 'use client';
 
 import { Flex, Textarea, Title, Button } from "@mantine/core";
-import { Flashdeck, apiRootURL, post } from './common'
+import { Flashdeck, apiRootURL, post } from '../common'
 import { useEffect, useState } from "react";
 
 export default function Quiz() {

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import ReactCardFlip from 'react-card-flip';
 import confetti from 'canvas-confetti'; 
 import { useRouter } from "next/router";
-import { get, post, apiRootURL, Flashdeck, Card } from './common';
+import { get, post, apiRootURL, Flashdeck, Card } from '../common';
 
 
 type GeneratorState = 'input' | 'generating' | 'done';
