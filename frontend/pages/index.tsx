@@ -1,9 +1,10 @@
 
-import { Burger, Button, Flex, Drawer, Title, Card, TextInput, Text, Modal, Center, Textarea } from "@mantine/core";
+import { Burger, Button, Flex, Drawer, Title, Card, TextInput, Text, Modal, Loader, Textarea } from "@mantine/core";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import { Carousel, Embla } from '@mantine/carousel';
 import { useState } from "react";
 import ReactCardFlip from 'react-card-flip';
+import confetti from 'canvas-confetti'; 
 
 const apiRootURL = 'http://127.0.0.1:8080';
 
@@ -16,6 +17,8 @@ type Flashdeck = {
   name: string,
   cards: Card[]
 };
+
+type GeneratorState = 'input' | 'generating' | 'done';
 
 const CardDisplay = (props: {card: Card, showAnswer: boolean}) => 
   <Card radius='xl' style={{width: '100%', height: '400px', boxShadow: '0px 20px 30px rgba(0, 0, 0, 0.2)'}}>
@@ -64,18 +67,15 @@ export default function Home() {
   ]);
   const [openDeck, setOpenDeck] = useState(0);
   const deck = openDeck < decks.length ? decks[openDeck] : null; 
-  const [openCard, setOpenCard] = useState(0);
-  const card = (deck && openCard < deck?.cards.length) ? deck.cards[openCard] : null;
   const [showAnswer, {toggle: toggleAnswer, close: hideAnswer}] = useDisclosure(false);
 
-  const wrapCardIdx = (idx: number) => deck ? ((idx % deck.cards.length + deck.cards.length) % deck.cards.length) : 0;
-  const setCardIdx = (idx: number) => {setOpenCard(wrapCardIdx(idx)); hideAnswer()};
-
   const [createModalOpen, {open: openCreateModel, close: closeCreateModel}] = useDisclosure(false);
+  const [generatorState, setGeneratorState] = useState<GeneratorState>('input');
   const cardMode = !createModalOpen && !decklistOpen;
 
   const [embla, setEmbla] = useState<Embla | null>(null);
 
+  const [deckTitle, setDeckTitle] = useState('');
   const [notes, setNotes] = useState('');
 
   useHotkeys([
@@ -87,30 +87,51 @@ export default function Home() {
 
   const buttonGradient = {from: 'teal', to: 'lime', deg: 105};
 
+  const createModalInputUI = () => <>
+    <TextInput value={deckTitle} onChange={(e) => setDeckTitle(e.currentTarget.value)} placeholder='Flashdeck Name'/>
+    <Textarea value={notes} onChange={(e) => setNotes(e.currentTarget.value)} style={{width: '80%'}} placeholder='Your notes'/>
+    <Button variant='gradient' gradient={buttonGradient} onClick={() => {
+      setGeneratorState('generating');
+      post(apiRootURL + '/getCardsText', {
+        text: notes
+      }).then((deckData: {deck: {cards: {question: string, answer: string}[]}}) => {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.4 }
+        });
+        setGeneratorState('done');
+        const deck: Flashdeck = {
+          name: deckTitle, 
+          cards: deckData.deck.cards.map(cardData => {return {q: cardData.question, a: cardData.answer};})
+        };
+        decks.push(deck);
+        setDecks(decks);
+        setDeckTitle('');
+        setNotes('');
+      });
+    }}>Generate! ✨</Button>
+  </>;
+
+  const createModalGeneratingUI = () => <>
+    <Loader color="lime" variant="bars"/>
+  </>;
+
+  const createModalDoneUI = () => <>
+    ✨ Flashdeck generated! ✨ 
+  </>;
+
   return <>
     <Burger opened={decklistOpen} onClick={decklistToggle}/>
     <Drawer opened={decklistOpen} onClose={decklistClose}>
       <Title size='h4'>Flashdecks</Title>
-      {decks.map((deck, i) => <Button variant={i == openDeck ? 'light' : 'subtle'} key={i} style={{marginTop: '10px', display: 'block'}} onClick={() => {setOpenDeck(i); decklistClose(); hideAnswer(); setOpenCard(0);}}>{deck.name}</Button>)}
-      <Button variant='gradient' style={{marginTop: '10px', display: 'block'}} gradient={buttonGradient} onClick={() => {decklistClose(); openCreateModel();}}>Create Flashdeck</Button>
+      {decks.map((deck, i) => <Button variant={i == openDeck ? 'light' : 'subtle'} key={i} style={{marginTop: '10px', display: 'block'}} onClick={() => {setOpenDeck(i); decklistClose(); hideAnswer(); embla?.scrollTo(0, true)}}>{deck.name}</Button>)}
+      <Button variant='gradient' style={{marginTop: '10px', display: 'block'}} gradient={buttonGradient} onClick={() => {decklistClose(); openCreateModel(); setGeneratorState('input');}}>Create Flashdeck</Button>
     </Drawer>
     <Modal radius='lg' yOffset={150} opened={createModalOpen} onClose={closeCreateModel}>
-      <Flex gap='md' justify='center' align='center' direction='column'>
+      <Flex style={{marginBottom: '30px'}} gap='md' justify='center' align='center' direction='column'>
         <Title size='h3'>Create Flashdeck</Title>
-        <TextInput placeholder='Flashdeck Name'/>
-        <Textarea value={notes} onChange={(e) => setNotes(e.currentTarget.value)} style={{width: '80%'}} placeholder='Your notes'/>
-        <Button variant='gradient' gradient={buttonGradient} onClick={() => {
-          post(apiRootURL + '/getCardsText', {
-            text: notes
-          }).then((deckData: {deck: {cards: {question: string, answer: string}[]}}) => {
-            const deck: Flashdeck = {
-              name: 'New Deck',
-              cards: deckData.deck.cards.map(cardData => {return {q: cardData.question, a: cardData.answer};})
-            };
-            decks.push(deck);
-            setDecks(decks);
-          });
-        }}>Generate! ✨</Button>
+        {generatorState == 'input' ? createModalInputUI() : (generatorState == 'generating' ? createModalGeneratingUI() : createModalDoneUI())}
       </Flex>
     </Modal>
     {deck && <Flex justify='center' align='center' direction='column' style={{position: 'absolute', top: '0', left: '0', width: '100vw', height: '100vh', pointerEvents: 'none'}}>
@@ -118,7 +139,7 @@ export default function Home() {
       <Carousel getEmblaApi={setEmbla} style={{overflow: 'inherit'}} slideGap='1000px' loop slideSize='70%' w='100%' withControls={false} mx='auto'>
         {concat(deck.cards, deck.cards).map((card, i) =>
           <Carousel.Slide>
-            <ReactCardFlip flipSpeedBackToFront={0.4} flipSpeedFrontToBack={0.4} isFlipped={showAnswer} flipDirection='vertical'>
+            <ReactCardFlip flipSpeedBackToFront={0.3} flipSpeedFrontToBack={0.3} isFlipped={showAnswer} flipDirection='vertical'>
               <CardDisplay card={card} showAnswer={false}/>
               <CardDisplay card={card} showAnswer={true}/>
             </ReactCardFlip>

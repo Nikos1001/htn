@@ -2,3 +2,7 @@
 .mantine-Carousel-viewport {
     overflow: visible !important;
 }
+
+canvas {
+    z-index: 10000000 !important;
+}
