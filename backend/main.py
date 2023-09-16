@@ -7,9 +7,13 @@ import html2text
 from urllib.request import urlopen
 import json
 
-co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
-db = psycopg2.connect('postgresql://hiatus:zK8yCsqmKmIdEKSn0_8WYA@pet-indri-3361.g95.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full')
+# IMPORTS FOR DECK GENERATION
+import db 
+# from db import * 
 
+# Initialize cohere client 
+co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
+# Initialize postgresql client
 
 def build_deck(text):
     # Generate prompt based on text from body
@@ -63,38 +67,6 @@ def build_deck(text):
                 "answer": lines[lines.index(line) + 1].replace("Answer", "").replace(":", "").replace("answer", "")
             })
     return json 
-
-db.autocommit = True #disgusting line of code, figure this out!
-
-def execute_query(query):
-    cursor = db.cursor()
-    try:
-        cursor.execute(query)
-        print("Query success")
-    except OperationalError as err:
-        print(f"Error {err}")
-
-# execute_query("DROP TABLE deck_list")
-execute_query("CREATE TABLE IF NOT EXISTS deck_list (id SERIAL PRIMARY KEY, deck JSON)")
-
-def add_to_db(deck):
-    deck_str = json.dumps(deck).replace('\'', '')
-    print(deck_str)
-    add_query = f"INSERT INTO deck_list (deck) VALUES ('{deck_str}')"
-    execute_query(add_query)
-
-def retrieve_db():
-    deck_list = []
-
-    cursor = db.cursor()
-    try:
-        cursor.execute("SELECT * FROM deck_list")
-        for deck in cursor.fetchall():
-            deck_list.append(deck[1])
-    except OperationalError as err:
-        print(f"The error '{err}' occurred")
-
-    return deck_list
 
 app = Flask(__name__)
 CORS(app)
@@ -176,10 +148,10 @@ def webscrape_generate():
 @app.route('/decks', methods=['GET', 'POST'])
 def decks():
     if request.method == 'GET':
-        return jsonify(retrieve_db())
+        return jsonify(db.retrieve_db())
     else:
         data = request.get_json()
-        add_to_db(data)
+        db.add_to_db(data)
         return jsonify({})
 
 app.run(port=8080)
