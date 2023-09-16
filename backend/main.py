@@ -7,18 +7,18 @@ import cohere
 co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
 db = psycopg2.connect('postgresql://hiatus:6H3NXwrWDDktAPda9k3pbg@lake-centaur-5448.g8z.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full')
 
-def sql(sql):
-    with db.cursor() as cur:
-        cur.execute(sql)
-        db.commit()
+# def sql(sql):
+#     with db.cursor() as cur:
+#         cur.execute(sql)
+#         db.commit()
 
-sql('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name VARCHAR(255));')
+# sql('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name VARCHAR(255));')
 
-# Create a table to represent the global decks
-sql('CREATE TABLE IF NOT EXISTS decks (id SERIAL PRIMARY KEY, name TEXT, user_id INT NOT NULL, FOREIGN KEY (user_id) REFERENCES users (id));')
+# # Create a table to represent the global decks
+# sql('CREATE TABLE IF NOT EXISTS decks (id SERIAL PRIMARY KEY, name TEXT, user_id INT NOT NULL, FOREIGN KEY (user_id) REFERENCES users (id));')
 
-# Create a table to represent flashcards
-sql('CREATE TABLE IF NOT EXISTS flashcards (id SERIAL PRIMARY KEY, question TEXT, answer TEXT, deck_id INT NOT NULL, FOREIGN KEY (deck_id) REFERENCES decks (id));')
+# # Create a table to represent flashcards
+# sql('CREATE TABLE IF NOT EXISTS flashcards (id SERIAL PRIMARY KEY, question TEXT, answer TEXT, deck_id INT NOT NULL, FOREIGN KEY (deck_id) REFERENCES decks (id));')
 
 def build_deck(text):
     # Generate prompt based on text from body
@@ -46,11 +46,6 @@ def build_deck(text):
     for generation in response.generations:
         rawData += generation.text
 
-    titlePrompt = co.generate(
-        model="command-nightly", 
-        prompt="This is a bot that creates a title for the content of the text " + rawData,
-        max_tokens=10
-    )
 
     # Split the data into lines to parse the questions
     lines = rawData.splitlines()
@@ -58,7 +53,7 @@ def build_deck(text):
     # Create the json 
     json = {
         "cards": [],
-        "title": titlePrompt.generations[0].text
+        "title": "Temp Title"
     }
 
     print(lines)
@@ -96,6 +91,8 @@ def add_to_db(deckJson):
     
     return 0
 
+build_deck("The sun is a star. The moon is a satellite.")
+
 
 app = Flask(__name__)
 CORS(app)
@@ -121,7 +118,7 @@ def getCardsText():
     }
 
     # Add the deck to the database
-    add_to_db(deck) 
+    # add_to_db(deck) 
 
     return jsonify(data)
 
