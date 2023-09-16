@@ -6,6 +6,7 @@ import cohere
 import html2text
 from urllib.request import urlopen
 import json
+from bs4 import BeautifulSoup
 
 # IMPORTS FOR DECK GENERATION
 import db 
@@ -140,9 +141,15 @@ def webscrape_generate():
     data = request.get_json() 
     url = data['url']
     html = urlopen(url).read().decode('utf-8')
-    text = html2text.html2text(html)
+    # text = html2text.html2text(html)
+    text = ''
+    for elem in BeautifulSoup(html).findAll('p'):
+        text += elem.getText()
+    print(html, text)
+
     if len(text) > 4096:
         text = text[0:4096]
+
     deck = build_deck(text, data["title"])
     data = {
         'deck': deck,
@@ -189,7 +196,8 @@ def question():
     lines = raw_data.split('\n')
     questions = []
     for line in lines:
-        questions.append(line.replace('- ', '')) 
+        if '- ' in line or 'question: ' in line.lower():
+            questions.append(line.replace('- ', '').replace('Question: ', '').replace('question: ', '')) 
 
     return questions 
 
@@ -199,6 +207,18 @@ def answer():
     text = data['text']
     question = data['question']
     answer = data['answer']
+
+    #     # print(raw_data)
+
+    # response = co.rerank(
+    #     model='rerank-english-v2.0',
+    #     query=f'{text}\n\n{question}',
+    #     documents = answers,
+    #     top_n = 3,
+    # )
+
+    # print(response)
+
     prompt = ''
     prompt += text 
     prompt += '\n State if the answer to the question is correct or incorrect. If incorrect, explain why \n'
@@ -213,27 +233,25 @@ def answer():
     prompt += 'Answer: ' + answer + '\n'
     prompt += 'Feedback:\n'
 
-    response = co.generate(
-        model="command-nightly", 
-        prompt=prompt,
-        max_tokens=600
+    answers = co.generate(
+        model="command-nightly",
+        prompt = prompt,
+        max_tokens= 600
     )
 
     raw_data = ""
 
-    for generation in response.generations:
+    for generation in answers.generations:
         raw_data += generation.text
 
-    print(raw_data)
-
     lines = raw_data.split('\n')
+    
     feedbacks = []
     for line in lines:
-        if 'feedback:' in line.lower():
-            feedback = line.replace('Feedback:', '').replace('feedback:', '')
-            feedbacks.append(feedback) 
+        feedback = line.replace('Feedback:', '').replace('feedback:', '')
+        feedbacks.append(feedback) 
 
-    return {'feedback': lines[0]} 
+    return {'feedback': raw_data} 
 
 
 app.run(port=8080)
