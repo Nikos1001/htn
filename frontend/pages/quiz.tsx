@@ -26,7 +26,7 @@ export default function Quiz() {
 
     useEffect(() => {
         let deckData = JSON.parse(localStorage.getItem('deck') as string);
-        post(apiRootURL + '/question', {text: deckData?.text}).then(questions => {
+        post(apiRootURL + '/question', {text: deckData?.text, title: deckData?.title}).then(questions => {
             setQuestions(questions);
             setQuizState('quiz');
         });
@@ -46,7 +46,7 @@ export default function Quiz() {
                             setFeedbackState('done');
                             setFeedback(feedback.feedback);
                             const lower = feedback.feedback.toLowerCase();
-                            const correct = lower.includes('correct') && !lower.includes('not correct');
+                            const correct = lower.includes('correct') && !lower.includes('not correct') && !lower.includes('incorrect');
                             if(correct) {
                                 setScore(score + 1);
                                 confetti({

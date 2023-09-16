@@ -163,17 +163,21 @@ def decks():
 def question():
     data = request.get_json()
     text = data['text']
+    title = data['title']
     prompt = 'This is a bot that generates comprehension questions based on the key concepts presented text input(general ideas, not specific examples).\n'
     prompt += 'Example output (FOLLOW THIS FORMAT)\n'
     prompt += 'Question: What is the capital of Great Britain?\n' 
     prompt += 'Text input:\n'
     prompt += text
-    prompt += '\nList of questions:\n'
+    prompt += '\nPlease use ' + title + ' in your questions.\n'
+    prompt += 'List of questions:\n'
     response = co.generate(
         model="command-nightly", 
         prompt=prompt,
         max_tokens=600
     )
+
+    print(prompt)
 
     raw_data = ""
 
@@ -195,9 +199,9 @@ def answer():
     text = data['text']
     question = data['question']
     answer = data['answer']
-    prompt = 'This is a bot that checks the correctness of an answer to a question based on the input text and provides feedback for the answer.\n'
-    prompt += 'Input Text:\n'
+    prompt = ''
     prompt += text 
+    prompt += '\nGiven the material above, check if the given answer correctly answers the question and provide feedback if it does not.'
     prompt += 'Example (FOLLOW THIS FORMAT):\n'
     prompt += 'Question: What is the capital of England?\n'
     prompt += 'Answer: London is the capital of England.\n'
