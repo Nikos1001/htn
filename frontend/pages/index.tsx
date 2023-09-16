@@ -151,6 +151,7 @@ export default function Home() {
         };
         post(apiRootURL + '/decks', deck);
         decks.push(deck);
+        setOpenDeck(decks.length - 1);
         setDecks(decks);
       });
     }}>Generate! ✨</Button>
