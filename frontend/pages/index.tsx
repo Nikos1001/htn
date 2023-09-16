@@ -5,6 +5,8 @@ import { Carousel, Embla } from '@mantine/carousel';
 import { useState } from "react";
 import ReactCardFlip from 'react-card-flip';
 
+const apiRootURL = 'http://127.0.0.1:8080';
+
 type Card = {
   q: string,
   a: string
@@ -29,6 +31,17 @@ function concat<T>(a: T[], b: T[]) {
   a.forEach(x => res.push(x));
   b.forEach(x => res.push(x));
   return res;
+}
+
+async function post(url: string, data: any) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
 }
 
 export default function Home() {
@@ -63,6 +76,8 @@ export default function Home() {
 
   const [embla, setEmbla] = useState<Embla | null>(null);
 
+  const [notes, setNotes] = useState('');
+
   useHotkeys([
     ['Space', () => cardMode && toggleAnswer()],
     ['ArrowLeft', () => cardMode && [embla?.scrollPrev(), hideAnswer()]],
@@ -83,8 +98,19 @@ export default function Home() {
       <Flex gap='md' justify='center' align='center' direction='column'>
         <Title size='h3'>Create Flashdeck</Title>
         <TextInput placeholder='Flashdeck Name'/>
-        <Textarea style={{width: '80%'}} placeholder='Your notes'/>
-        <Button variant='gradient' gradient={buttonGradient}>Generate! ✨</Button>
+        <Textarea value={notes} onChange={(e) => setNotes(e.currentTarget.value)} style={{width: '80%'}} placeholder='Your notes'/>
+        <Button variant='gradient' gradient={buttonGradient} onClick={() => {
+          post(apiRootURL + '/getCardsText', {
+            text: notes
+          }).then((deckData: {deck: {cards: {question: string, answer: string}[]}}) => {
+            const deck: Flashdeck = {
+              name: 'New Deck',
+              cards: deckData.deck.cards.map(cardData => {return {q: cardData.question, a: cardData.answer};})
+            };
+            decks.push(deck);
+            setDecks(decks);
+          });
+        }}>Generate! ✨</Button>
       </Flex>
     </Modal>
     {deck && <Flex justify='center' align='center' direction='column' style={{position: 'absolute', top: '0', left: '0', width: '100vw', height: '100vh', pointerEvents: 'none'}}>
