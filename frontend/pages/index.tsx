@@ -2,7 +2,7 @@
 import { Burger, Button, Flex, Drawer, Title, Card, TextInput, Text, Modal, Loader, Textarea, SegmentedControl, FileInput } from "@mantine/core";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import { Carousel, Embla } from '@mantine/carousel';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactCardFlip from 'react-card-flip';
 import confetti from 'canvas-confetti'; 
 
@@ -37,6 +37,11 @@ function concat<T>(a: T[], b: T[]) {
   return res;
 }
 
+async function get(url: string) {
+  const response = await fetch(url);
+  return response.json();
+}
+
 async function post(url: string, data: any) {
   let formData = null;
   if(data instanceof File) {
@@ -69,6 +74,12 @@ export default function Home() {
   const [notes, setNotes] = useState('');
   const [photo, setPhoto] = useState<File | null>(null);
   const [url, setUrl] = useState('');
+
+  useEffect(() => {
+    get(apiRootURL + '/decks').then((data) => {
+      setDecks(data);
+    });
+  }, []);
 
   const clearCreateModalParams = () => {
     setDeckTitle('');
@@ -157,7 +168,7 @@ export default function Home() {
     <Burger opened={decklistOpen} onClick={decklistToggle}/>
     <Drawer opened={decklistOpen} onClose={decklistClose}>
       <Title size='h4'>Flashdecks</Title>
-      {decks.map((deck, i) => <Button variant={i == openDeck ? 'light' : 'subtle'} key={i} style={{marginTop: '10px', display: 'block'}} onClick={() => {setOpenDeck(i); decklistClose(); hideAnswer(); embla?.scrollTo(0, true)}}>{deck.name}</Button>)}
+      {decks.map((deck, i) => <Button variant={i == openDeck ? 'light' : 'subtle'} key={i} style={{marginTop: '10px', display: 'block'}} onClick={() => {setOpenDeck(i); decklistClose(); hideAnswer(); embla?.scrollTo(0, true)}}>{deck.title}</Button>)}
       <Button variant='gradient' style={{marginTop: '10px', display: 'block'}} gradient={buttonGradient} onClick={() => {decklistClose(); openCreateModel(); clearCreateModalParams();}}>Create Flashdeck</Button>
     </Drawer>
     <Modal radius='lg' yOffset={150} opened={createModalOpen} onClose={closeCreateModel}>

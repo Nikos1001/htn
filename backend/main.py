@@ -5,6 +5,7 @@ import psycopg2
 import cohere
 import html2text
 from urllib.request import urlopen
+import json
 
 co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
 db = psycopg2.connect('postgresql://hiatus:zK8yCsqmKmIdEKSn0_8WYA@pet-indri-3361.g95.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full')
@@ -82,11 +83,13 @@ def execute_query(query):
     except OperationalError as err:
         print(f"Error {err}")
 
+# execute_query("DROP TABLE deck_list")
 execute_query("CREATE TABLE IF NOT EXISTS deck_list (id SERIAL PRIMARY KEY, deck JSON)")
 
 def add_to_db(deck):
-    add_query = f"INSERT INTO deck_list (deck) VALUES ('" + f"{deck}".replace('"', "\\\"").replace('\'', '"') + "')"
-    print(deck) #DA!!! print statement
+    deck_str = json.dumps(deck).replace('\'', '')
+    print(deck_str)
+    add_query = f"INSERT INTO deck_list (deck) VALUES ('{deck_str}')"
     execute_query(add_query)
 
 def retrieve_db():
@@ -124,9 +127,6 @@ def getCardsText():
     data = {
         'deck': deck,
     }
-
-    # Add the deck to the database
-    add_to_db(deck) 
 
     return jsonify(data)
 
