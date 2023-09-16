@@ -145,7 +145,7 @@ export default function Home() {
     <Burger opened={decklistOpen} onClick={decklistToggle}/>
     <Drawer opened={decklistOpen} onClose={decklistClose}>
       <Title size='h4'>Flashdecks</Title>
-      {decks.map((deck, i) => <Button key={i} variant={i == openDeck ? 'light' : 'subtle'} key={i} style={{marginTop: '10px', display: 'block'}} onClick={() => {setOpenDeck(i); decklistClose(); hideAnswer(); embla?.scrollTo(0, true)}}>{deck.title}</Button>)}
+      {decks.map((deck, i) => <Button key={i} variant={i == openDeck ? 'light' : 'subtle'} style={{marginTop: '10px', display: 'block'}} onClick={() => {setOpenDeck(i); decklistClose(); hideAnswer(); embla?.scrollTo(0, true)}}>{deck.title}</Button>)}
       <Button variant='gradient' style={{marginTop: '10px', display: 'block'}} gradient={buttonGradient} onClick={() => {decklistClose(); openCreateModel(); clearCreateModalParams();}}>Create Flashdeck</Button>
     </Drawer>
     <Modal radius='lg' yOffset={150} opened={createModalOpen} onClose={closeCreateModel}>
