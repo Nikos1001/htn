@@ -164,13 +164,13 @@ def question():
     data = request.get_json()
     text = data['text']
     title = data['title']
-    prompt = 'This is a bot that generates comprehension questions based on the key concepts presented text input(general ideas, not specific examples).\n'
+    prompt = 'This is a bot that generates open-ended non-specific comprehension questions based on the key concepts presented text input.\n'
     prompt += 'Example output (FOLLOW THIS FORMAT)\n'
     prompt += 'Question: What is the capital of Great Britain?\n' 
     prompt += 'Text input:\n'
     prompt += text
     prompt += '\nPlease use ' + title + ' in your questions.\n'
-    prompt += 'List of questions:\n'
+    prompt += 'Provide a bulleted list of three to five questions.\n'
     response = co.generate(
         model="command-nightly", 
         prompt=prompt,
@@ -184,12 +184,12 @@ def question():
     for generation in response.generations:
         raw_data += generation.text
 
+    print(raw_data)
+
     lines = raw_data.split('\n')
     questions = []
     for line in lines:
-        if 'question:' in line.lower():
-            question = line.replace('Question:', '').replace('question:', '')
-            questions.append(question) 
+        questions.append(line.replace('- ', '')) 
 
     return questions 
 

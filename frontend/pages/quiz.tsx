@@ -26,7 +26,7 @@ export default function Quiz() {
 
     useEffect(() => {
         let deckData = JSON.parse(localStorage.getItem('deck') as string);
-        post(apiRootURL + '/question', {text: deckData?.text, title: deckData?.title}).then(questions => {
+        post(apiRootURL() + '/question', {text: deckData?.text, title: deckData?.title}).then(questions => {
             setQuestions(questions);
             setQuizState('quiz');
         });
@@ -38,7 +38,7 @@ export default function Quiz() {
             case 'input':
                 return <Button variant='gradient' gradient={buttonGradient} onClick={() => {
                         setFeedbackState('generating');
-                        post(apiRootURL + '/answer', {
+                        post(apiRootURL() + '/answer', {
                             text: deck?.text,
                             question: questions ? questions[currQuestion] : '',
                             answer: answer

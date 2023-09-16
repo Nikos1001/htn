@@ -29,7 +29,9 @@ async function post(url: string, data: any) {
   return response.json();
 }
 
-const apiRootURL = 'http://127.0.0.1:8080';
+const apiRootURL = () => {
+  return 'http://' + window.location.hostname + ':8080';
+}; 
 
 export { get, post, apiRootURL };
 export type { Flashdeck, Card };

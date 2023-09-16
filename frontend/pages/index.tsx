@@ -51,7 +51,7 @@ export default function Home() {
   const [url, setUrl] = useState('');
 
   useEffect(() => {
-    get(apiRootURL + '/decks').then((data) => {
+    get(apiRootURL() + '/decks').then((data) => {
       setDecks(data);
     });
   }, []);
@@ -112,7 +112,7 @@ export default function Home() {
       {createModalSourceUI()}
       <Button variant='gradient' gradient={buttonGradient} onClick={() => {
       setGeneratorState('generating');
-      post(apiRootURL + inputTypeToEndpoint[inputSource], getGenerateRequestData()) 
+      post(apiRootURL() + inputTypeToEndpoint[inputSource], getGenerateRequestData()) 
       .then((deckData: {text: string, deck: {title: string, cards: {question: string, answer: string}[]}}) => {
         confetti({
           particleCount: 100,
@@ -125,7 +125,7 @@ export default function Home() {
           text: deckData.text,
           cards: deckData.deck.cards.map(cardData => {return {question: cardData.question, answer: cardData.answer};})
         };
-        post(apiRootURL + '/decks', deck);
+        post(apiRootURL() + '/decks', deck);
         decks.push(deck);
         setOpenDeck(decks.length - 1);
         setDecks(decks);
