@@ -24,7 +24,7 @@ def build_deck(text):
         Content: """
     
     response = co.generate(
-        mode="command-nightly", 
+        model = "command-nightly", 
         prompt = profanity_filter_prompt,
         tokens = 7)
     
