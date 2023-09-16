@@ -42,8 +42,9 @@ def build_deck(text):
     # Create the json 
     json = {
         "cards": [],
-        "title": "Temp Title"
+        "title": "temptitle"
     }
+    #TODO ADD DECK TITLE
 
     print(lines)
 
@@ -60,8 +61,6 @@ def build_deck(text):
                 "question": line.replace("Question", "").replace(": ", "").replace("question", ""),
                 "answer": lines[lines.index(line) + 1].replace("Answer", "").replace(":", "").replace("answer", "")
             })
-
-    print(json)
     return json 
 
 def sql(query):
@@ -82,23 +81,12 @@ def execute_query(query):
     except OperationalError as err:
         print(f"Error {err}")
 
-execute_query("CREATE TABLE IF NOT EXISTS decks (id SERIAL PRIMARY KEY, name TEXT NOT NULL, deck JSON)")
+execute_query("CREATE TABLE IF NOT EXISTS deck_list (id SERIAL PRIMARY KEY, deck JSON)")
 
-# def add_to_db(deckJson): 
-#     listOfCards = deckJson["cards"]
-#     title = deckJson["title"]
-
-#     # Add the deck to the database
-#     sql("INSERT INTO decks (name, user_id) VALUES ('" + title + "', 1);")
-
-#     # Get the id of the deck that was just added
-#     deckId = sql("SELECT id FROM decks WHERE name='" + title + "';")
-
-#     # Iterate through the cards and add them to the database
-#     for card in listOfCards:
-#         sql("INSERT INTO flashcards (question, answer, deck_id) VALUES ('" + card["question"] + "', '" + card["answer"] + "', " + deckId + ");")
-    
-#     return 0
+def add_to_db(json):
+    add_query = f"INSERT INTO deck_list (deck) VALUES {json}"
+    print(json) #DA!!! print statement
+    execute_query(add_query)
 
 app = Flask(__name__)
 CORS(app)
@@ -124,7 +112,7 @@ def getCardsText():
     }
 
     # Add the deck to the database
-    # add_to_db(deck) 
+    add_to_db(deck) 
 
     return jsonify(data)
 
@@ -179,6 +167,5 @@ def webscrape_generate():
         'deck': deck,
     }
     return jsonify(data)
-
 
 app.run(port=8080)
