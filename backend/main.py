@@ -64,15 +64,6 @@ def build_deck(text):
             })
     return json 
 
-def sql(query):
-    db.autocommit = True
-    cursor = db.cursor()
-    try:
-        print(f"Query {query} successful")
-        cursor.execute(query)
-    except OperationalError as err:
-        print(f"Error {err}")
-
 db.autocommit = True #disgusting line of code, figure this out!
 
 def execute_query(query):
