@@ -19,7 +19,7 @@ type Flashdeck = {
 };
 
 type GeneratorState = 'input' | 'generating' | 'done';
-type InputSource = 'notes' | 'ocr';
+type InputSource = 'notes' | 'ocr' | 'webscrape';
 
 const CardDisplay = (props: {card: Card, showAnswer: boolean}) => 
   <Card radius='xl' style={{width: '100%', height: '400px', boxShadow: '0px 20px 30px rgba(0, 0, 0, 0.2)'}}>
@@ -43,7 +43,6 @@ async function post(url: string, data: any) {
     formData = new FormData(); 
     formData.append('file', data);
   }
-  let headers = {};
   const response = await fetch(url, {
     method: 'POST',
     headers: (data instanceof File) ? {} : {'Content-Type': 'application/json'},
@@ -54,22 +53,7 @@ async function post(url: string, data: any) {
 
 export default function Home() {
   const [decklistOpen, {toggle : decklistToggle, close: decklistClose}] = useDisclosure(false);
-  const [decks, setDecks] = useState<Flashdeck[]>([
-    {
-      name: 'CS',
-      cards: [
-        {q: 'What is BFS', a: 'I don\'t know.'},
-        {q: 'What is DFS', a: 'I don\'t know.'}
-      ]
-    },
-    {
-      name: 'Duck Anatomy',
-      cards: [
-        {q: 'How many legs do ducks have?', a: 'Researchers disagree, but estimates range from 12 to 16.'},
-        {q: 'What do ducks do?', a: 'Ducks are dangerous and unpredictable beasts.'}
-      ]
-    }
-  ]);
+  const [decks, setDecks] = useState<Flashdeck[]>([]);
   const [openDeck, setOpenDeck] = useState(0);
   const deck = openDeck < decks.length ? decks[openDeck] : null; 
   const [showAnswer, {toggle: toggleAnswer, close: hideAnswer}] = useDisclosure(false);
@@ -84,6 +68,33 @@ export default function Home() {
   const [inputSource, setInputSource] = useState<InputSource>('notes');
   const [notes, setNotes] = useState('');
   const [photo, setPhoto] = useState<File | null>(null);
+  const [url, setUrl] = useState('');
+
+  const clearCreateModalParams = () => {
+    setDeckTitle('');
+    setInputSource('notes');
+    setNotes('');
+    setPhoto(null);
+    setGeneratorState('input');
+    setUrl('');
+  };
+
+  const inputTypeToEndpoint = {
+    'notes': '/generate',
+    'ocr': '/img_generate',
+    'webscrape': '/webscrape_generate'
+  };
+
+  const getGenerateRequestData = () => {
+    switch(inputSource) {
+      case 'notes':
+        return {text: notes};
+      case 'ocr':
+        return photo;
+      case 'webscrape':
+        return {url: url};
+    }
+  };
 
   useHotkeys([
     ['Space', () => cardMode && toggleAnswer()],
@@ -100,6 +111,8 @@ export default function Home() {
         return <Textarea value={notes} onChange={(e) => setNotes(e.currentTarget.value)} style={{width: '80%'}} placeholder='Your notes'/>;
       case 'ocr':
         return <FileInput accept='image/*' placeholder='Select Photo...' value={photo} onChange={(file) => setPhoto(file)}/>
+      case 'webscrape':
+        return <TextInput placeholder='URL' value={url} onChange={(e) => setUrl(e.currentTarget.value)}/>
     }
   }
 
@@ -107,12 +120,13 @@ export default function Home() {
       <TextInput value={deckTitle} onChange={(e) => setDeckTitle(e.currentTarget.value)} placeholder='Flashdeck Name'/>
       <SegmentedControl value={inputSource} onChange={(value) => setInputSource(value as InputSource)} data={[
         {label: 'Text Notes', value: 'notes'},
-        {label: 'Photo', value: 'ocr'}
+        {label: 'Photo', value: 'ocr'},
+        {label: 'Website', value: 'webscrape'}
       ]}/>
       {createModalSourceUI()}
       <Button variant='gradient' gradient={buttonGradient} onClick={() => {
       setGeneratorState('generating');
-      post(apiRootURL + (inputSource == 'notes' ? '/generate' : '/img_generate'), inputSource == 'notes' ? {text: notes} : photo)
+      post(apiRootURL + inputTypeToEndpoint[inputSource], getGenerateRequestData()) 
       .then((deckData: {deck: {title: string, cards: {question: string, answer: string}[]}}) => {
         confetti({
           particleCount: 100,
@@ -126,8 +140,6 @@ export default function Home() {
         };
         decks.push(deck);
         setDecks(decks);
-        setDeckTitle('');
-        setNotes('');
       });
     }}>Generate! ✨</Button>
   </>;
@@ -145,7 +157,7 @@ export default function Home() {
     <Drawer opened={decklistOpen} onClose={decklistClose}>
       <Title size='h4'>Flashdecks</Title>
       {decks.map((deck, i) => <Button variant={i == openDeck ? 'light' : 'subtle'} key={i} style={{marginTop: '10px', display: 'block'}} onClick={() => {setOpenDeck(i); decklistClose(); hideAnswer(); embla?.scrollTo(0, true)}}>{deck.name}</Button>)}
-      <Button variant='gradient' style={{marginTop: '10px', display: 'block'}} gradient={buttonGradient} onClick={() => {decklistClose(); openCreateModel(); setGeneratorState('input');}}>Create Flashdeck</Button>
+      <Button variant='gradient' style={{marginTop: '10px', display: 'block'}} gradient={buttonGradient} onClick={() => {decklistClose(); openCreateModel(); clearCreateModalParams();}}>Create Flashdeck</Button>
     </Drawer>
     <Modal radius='lg' yOffset={150} opened={createModalOpen} onClose={closeCreateModel}>
       <Flex style={{marginBottom: '30px'}} gap='md' justify='center' align='center' direction='column'>

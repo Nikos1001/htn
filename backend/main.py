@@ -3,6 +3,8 @@ from flask_cors import CORS
 from psycopg2 import OperationalError
 import psycopg2
 import cohere
+import html2text
+from urllib.request import urlopen
 
 co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
 db = psycopg2.connect('postgresql://hiatus:zK8yCsqmKmIdEKSn0_8WYA@pet-indri-3361.g95.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full')
@@ -175,7 +177,20 @@ def img_generate():
 
     # return
     return jsonify(data)
-    
+
+@app.route('/webscrape_generate', methods=['POST'])
+def webscrape_generate():
+    data = request.get_json() 
+    url = data['url']
+    html = urlopen(url).read().decode('utf-8')
+    text = html2text.html2text(html)
+    if len(text) > 4096:
+        text = text[0:4096]
+    deck = build_deck(text)
+    data = {
+        'deck': deck,
+    }
+    return jsonify(data)
 
 
 app.run(port=8080)
