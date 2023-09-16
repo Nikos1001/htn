@@ -96,7 +96,7 @@ def retrieve_db():
     try:
         cursor.execute("SELECT * FROM deck_list")
         for deck in cursor.fetchall():
-            deck_list.append(deck)
+            deck_list.append(deck[1])
     except OperationalError as err:
         print(f"The error '{err}' occurred")
 
@@ -181,5 +181,14 @@ def webscrape_generate():
         'deck': deck,
     }
     return jsonify(data)
+
+@app.route('/decks', methods=['GET', 'POST'])
+def decks():
+    if request.method == 'GET':
+        return jsonify(retrieve_db())
+    else:
+        data = request.get_json()
+        add_to_db(data)
+        return jsonify({})
 
 app.run(port=8080)

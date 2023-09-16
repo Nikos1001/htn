@@ -9,12 +9,12 @@ import confetti from 'canvas-confetti';
 const apiRootURL = 'http://127.0.0.1:8080';
 
 type Card = {
-  q: string,
-  a: string
+  question: string,
+  answer: string
 };
 
 type Flashdeck = {
-  name: string,
+  title: string,
   cards: Card[]
 };
 
@@ -25,7 +25,7 @@ const CardDisplay = (props: {card: Card, showAnswer: boolean}) =>
   <Card radius='xl' style={{width: '100%', height: '400px', boxShadow: '0px 20px 30px rgba(0, 0, 0, 0.2)'}}>
     <Flex justify='center' align='center' direction='column' style={{width: '100%', height: '100%'}}>
       <Title size='h3'>{props.showAnswer ? 'Answer' : 'Question'}</Title>
-      <Text size='xl' style={{marginTop: '40px'}}>{props.showAnswer ? props.card.a : props.card.q}</Text>
+      <Text size='xl' style={{marginTop: '40px'}}>{props.showAnswer ? props.card.answer : props.card.question}</Text>
     </Flex>
   </Card>;
 
@@ -135,9 +135,10 @@ export default function Home() {
         });
         setGeneratorState('done');
         const deck: Flashdeck = {
-          name: deckTitle, 
-          cards: deckData.deck.cards.map(cardData => {return {q: cardData.question, a: cardData.answer};})
+          title: deckTitle, 
+          cards: deckData.deck.cards.map(cardData => {return {question: cardData.question, answer: cardData.answer};})
         };
+        post(apiRootURL + '/decks', deck);
         decks.push(deck);
         setDecks(decks);
       });
