@@ -145,7 +145,7 @@ export default function Home() {
     <Burger opened={decklistOpen} onClick={decklistToggle}/>
     <Drawer opened={decklistOpen} onClose={decklistClose}>
       <Title size='h4'>Flashdecks</Title>
-      {decks.map((deck, i) => <Button variant={i == openDeck ? 'light' : 'subtle'} key={i} style={{marginTop: '10px', display: 'block'}} onClick={() => {setOpenDeck(i); decklistClose(); hideAnswer(); embla?.scrollTo(0, true)}}>{deck.title}</Button>)}
+      {decks.map((deck, i) => <Button key={i} variant={i == openDeck ? 'light' : 'subtle'} key={i} style={{marginTop: '10px', display: 'block'}} onClick={() => {setOpenDeck(i); decklistClose(); hideAnswer(); embla?.scrollTo(0, true)}}>{deck.title}</Button>)}
       <Button variant='gradient' style={{marginTop: '10px', display: 'block'}} gradient={buttonGradient} onClick={() => {decklistClose(); openCreateModel(); clearCreateModalParams();}}>Create Flashdeck</Button>
     </Drawer>
     <Modal radius='lg' yOffset={150} opened={createModalOpen} onClose={closeCreateModel}>
@@ -159,7 +159,7 @@ export default function Home() {
         <Title style={{marginBottom: '50px'}}>{deck.title}</Title>
         <Carousel getEmblaApi={setEmbla} style={{overflow: 'inherit'}} slideGap='1000px' loop slideSize='70%' w='100%' withControls={false} mx='auto'>
           {concat(deck.cards, deck.cards).map((card, i) =>
-            <Carousel.Slide>
+            <Carousel.Slide key={i}>
               <ReactCardFlip flipSpeedBackToFront={0.3} flipSpeedFrontToBack={0.3} isFlipped={showAnswer} flipDirection='vertical'>
                 <CardDisplay card={card} showAnswer={false}/>
                 <CardDisplay card={card} showAnswer={true}/>
