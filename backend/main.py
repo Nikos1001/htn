@@ -1,10 +1,11 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from psycopg2 import OperationalError
 import psycopg2
 import cohere
 
 co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
-db = psycopg2.connect('postgresql://hiatus:6H3NXwrWDDktAPda9k3pbg@lake-centaur-5448.g8z.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full')
+db = psycopg2.connect('postgresql://hiatus:zK8yCsqmKmIdEKSn0_8WYA@pet-indri-3361.g95.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full')
 
 def build_deck(text):
     # Generate prompt based on text from body
@@ -70,7 +71,23 @@ def sql(query):
     except OperationalError as err:
         print(f"Error {err}")
 
-        
+def execute_query(query):
+    db.autocommit = True
+    cursor = db.cursor()
+    try:
+        cursor.execute(query)
+        print("Query success")
+    except OperationalError as err:
+        print(f"Error {err}")
+
+execute_query("""
+CREATE TABLE IF NOT EXISTS decks (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL, 
+  deck JSON,
+)
+""")
+
 # def sql(query):
 #     cursor = db.cursor()
 #     cursor.execute(query)
