@@ -99,11 +99,11 @@ export default function Home() {
   const getGenerateRequestData = () => {
     switch(inputSource) {
       case 'notes':
-        return {text: notes};
+        return {text: notes, title: deckTitle};
       case 'ocr':
         return photo;
       case 'webscrape':
-        return {url: url};
+        return {url: url, title: deckTitle};
     }
   };
 
