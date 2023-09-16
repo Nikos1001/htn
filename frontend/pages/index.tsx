@@ -1,5 +1,5 @@
 
-import { Burger, Button, Flex, Drawer, Title, Card, TextInput, Text, Modal, Loader, Textarea } from "@mantine/core";
+import { Burger, Button, Flex, Drawer, Title, Card, TextInput, Text, Modal, Loader, Textarea, SegmentedControl, FileInput } from "@mantine/core";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import { Carousel, Embla } from '@mantine/carousel';
 import { useState } from "react";
@@ -19,6 +19,7 @@ type Flashdeck = {
 };
 
 type GeneratorState = 'input' | 'generating' | 'done';
+type InputSource = 'notes' | 'ocr';
 
 const CardDisplay = (props: {card: Card, showAnswer: boolean}) => 
   <Card radius='xl' style={{width: '100%', height: '400px', boxShadow: '0px 20px 30px rgba(0, 0, 0, 0.2)'}}>
@@ -37,12 +38,14 @@ function concat<T>(a: T[], b: T[]) {
 }
 
 async function post(url: string, data: any) {
+  let formData = null;
+  if(data instanceof File) {
+    formData = new FormData(); 
+    formData.append('file', data);
+  }
   const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
+    body: data instanceof File ? formData : JSON.stringify(data),
   });
   return response.json();
 }
@@ -76,7 +79,9 @@ export default function Home() {
   const [embla, setEmbla] = useState<Embla | null>(null);
 
   const [deckTitle, setDeckTitle] = useState('');
+  const [inputSource, setInputSource] = useState<InputSource>('notes');
   const [notes, setNotes] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
 
   useHotkeys([
     ['Space', () => cardMode && toggleAnswer()],
@@ -87,14 +92,26 @@ export default function Home() {
 
   const buttonGradient = {from: 'teal', to: 'lime', deg: 105};
 
+  const createModalSourceUI = () => {
+    switch(inputSource) {
+      case 'notes':
+        return <Textarea value={notes} onChange={(e) => setNotes(e.currentTarget.value)} style={{width: '80%'}} placeholder='Your notes'/>;
+      case 'ocr':
+        return <FileInput placeholder='Select Photo...' value={photo} onChange={(file) => setPhoto(file)}/>
+    }
+  }
+
   const createModalInputUI = () => <>
-    <TextInput value={deckTitle} onChange={(e) => setDeckTitle(e.currentTarget.value)} placeholder='Flashdeck Name'/>
-    <Textarea value={notes} onChange={(e) => setNotes(e.currentTarget.value)} style={{width: '80%'}} placeholder='Your notes'/>
-    <Button variant='gradient' gradient={buttonGradient} onClick={() => {
+      <TextInput value={deckTitle} onChange={(e) => setDeckTitle(e.currentTarget.value)} placeholder='Flashdeck Name'/>
+      <SegmentedControl value={inputSource} onChange={(value) => setInputSource(value as InputSource)} data={[
+        {label: 'Text Notes', value: 'notes'},
+        {label: 'Photo', value: 'ocr'}
+      ]}/>
+      {createModalSourceUI()}
+      <Button variant='gradient' gradient={buttonGradient} onClick={() => {
       setGeneratorState('generating');
-      post(apiRootURL + '/getCardsText', {
-        text: notes
-      }).then((deckData: {deck: {cards: {question: string, answer: string}[]}}) => {
+      post(apiRootURL + (inputSource == 'notes' ? '/getCardsText' : '/img_generate'), inputSource == 'notes' ? {text: notes} : photo)
+      .then((deckData: {deck: {title: string, cards: {question: string, answer: string}[]}}) => {
         confetti({
           particleCount: 100,
           spread: 70,

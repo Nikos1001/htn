@@ -125,4 +125,11 @@ def getCardsText():
 
     return jsonify(data)
 
+@app.route('/img_generate', methods=['POST'])
+def img_generate():
+    file = request.files['file']
+    file.save('files/' + file.filename)
+
+    return '123'
+
 app.run(port=8080)
