@@ -1,10 +1,22 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
+import psycopg2
 import cohere
 
 
 co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
+db = psycopg2.connect('postgresql://hiatus:<ENTER-SQL-USER-PASSWORD>@zinc-snorter-5379.g8z.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full')
+
+def sql(sql):
+    with db.cursor() as cur:
+        cur.execute(sql)
+        db.commit()
+
+# Create a table to represent decks
+sql('CREATE TABLE decks (id SERIAL PRIMARY KEY, name VARCHAR(255), user_id INT NOT NULL, FOREIGN KEY (user_id) REFERENCES users (id));')
+
+# Create a table to represent flashcards
+sql('CREATE TABLE flashcards (id SERIAL PRIMARY KEY, question TEXT, answer TEXT, deck_id INT NOT NULL, FOREIGN KEY (deck_id) REFERENCES decks (id));')
 
 # Helper funcs 
 def png_to_text():
@@ -29,7 +41,7 @@ def build_deck(text):
     response = co.generate(
         model="command-nightly", 
         prompt=prompt,
-        max_tokens=300
+        max_tokens=600
     )
 
     # Raw data from cohere
@@ -39,12 +51,19 @@ def build_deck(text):
     for generation in response.generations:
         rawData += generation.text
 
+    titlePrompt = co.generate(
+        model="command-nightly", 
+        prompt="This is a bot that creates a title for the content of the text " + rawData,
+        max_tokens=10
+    )
+
     # Split the data into lines to parse the questions
     lines = rawData.splitlines()
 
     # Create the json 
     json = {
-        "cards": []
+        "cards": [],
+        "title": titlePrompt.generations[0].text
     }
 
     print(lines)
@@ -65,6 +84,22 @@ def build_deck(text):
 
     print(json)
     return json 
+
+def add_to_db(deckJson): 
+    listOfCards = deckJson["cards"]
+    title = deckJson["title"]
+
+    # Add the deck to the database
+    sql("INSERT INTO decks (name, user_id) VALUES ('" + title + "', 1);")
+
+    # Get the id of the deck that was just added
+    deckId = sql("SELECT id FROM decks WHERE name='" + title + "';")
+
+    # Iterate through the cards and add them to the database
+    for card in listOfCards:
+        sql("INSERT INTO flashcards (question, answer, deck_id) VALUES ('" + card["question"] + "', '" + card["answer"] + "', " + deckId + ");")
+    
+    return 0
 
 
 app = Flask(__name__)
@@ -88,10 +123,11 @@ def getCardsText():
     deck = build_deck(text)
     data = {
         'deck': deck,
-        'message': 'Working test'
     }
 
+    # Add the deck to the database
+    add_to_db(deck) 
+
     return jsonify(data)
- 
 
 app.run(port=8080)
