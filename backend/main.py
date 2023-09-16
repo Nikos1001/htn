@@ -9,16 +9,16 @@ import json
 
 # IMPORTS FOR DECK GENERATION
 import db 
-# from db import * 
 
 # Initialize cohere client 
 co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
 # Initialize postgresql client
 
-def build_deck(text):
+def build_deck(text, title = ""):
     # Generate prompt based on text from body
-    prompt = """This is a bot that generates questions and answers for a flashcard based on the text input. 
-                Example (FOLLOW THIS FORMAT): 
+    prompt = f"""This is a bot that generates questions and answers for a flashcard based on the text input. The bot will use the title to give context.
+                Title: {title}
+                Example (FOLLOW THIS FORMAT):
                 Question: What is X  
                 Answer: X is ...
                 
@@ -139,7 +139,7 @@ def webscrape_generate():
     text = html2text.html2text(html)
     if len(text) > 4096:
         text = text[0:4096]
-    deck = build_deck(text)
+    deck = build_deck(text, data["title"])
     data = {
         'deck': deck,
     }
@@ -151,7 +151,7 @@ def decks():
         return jsonify(db.retrieve_db())
     else:
         data = request.get_json()
-        db.add_to_db(data)
+        db.add_to_db(data, data["title"])
         return jsonify({})
 
 app.run(port=8080)
