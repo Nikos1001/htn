@@ -12,28 +12,6 @@ db = psycopg2.connect('postgresql://hiatus:zK8yCsqmKmIdEKSn0_8WYA@pet-indri-3361
 
 
 def build_deck(text):
-    profanity_filter_prompt = """
-        This is a bot that states only yes or no. 
-        The bot will state yes if the text input is inappropriate and will state no if the text is appropariate.
-    
-        Example (FOLLOW THIS FORMAT)
-        Content: You piece of shit fucking bastard cock sucking dickhead bastard asshole cunt sucker dickface shit eater
-    
-        Yes 
-
-        Content: """
-    
-    response = co.generate(
-        model = "command-nightly", 
-        prompt = profanity_filter_prompt,
-        max_tokens = 7)
-    
-    # Check if the response generation is yes, that means that the content is vulgar otherwise its all clear
-    if (response.generations[0].text.lower() == 'yes'):
-        print("Inappropariate input")
-        return {}
-
-
     # Generate prompt based on text from body
     prompt = """This is a bot that generates questions and answers for a flashcard based on the text input. 
                 Example (FOLLOW THIS FORMAT): 
