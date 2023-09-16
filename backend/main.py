@@ -82,19 +82,7 @@ def execute_query(query):
     except OperationalError as err:
         print(f"Error {err}")
 
-execute_query("""
-CREATE TABLE IF NOT EXISTS decks (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL, 
-  deck JSON,
-)
-""")
-
-# def sql(query):
-#     cursor = db.cursor()
-#     cursor.execute(query)
-#     db.commit()
-#     return cursor.fetchall()
+execute_query("CREATE TABLE IF NOT EXISTS decks (id SERIAL PRIMARY KEY, name TEXT NOT NULL, deck JSON)")
 
 # def add_to_db(deckJson): 
 #     listOfCards = deckJson["cards"]
