@@ -5,7 +5,7 @@ import cohere
 
 
 co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
-db = psycopg2.connect('postgresql://hiatus:<ENTER-SQL-USER-PASSWORD>@zinc-snorter-5379.g8z.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full')
+db = psycopg2.connect('postgresql://hiatus:6H3NXwrWDDktAPda9k3pbg@lake-centaur-5448.g8z.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full')
 
 def sql(sql):
     with db.cursor() as cur:
@@ -17,13 +17,6 @@ sql('CREATE TABLE decks (id SERIAL PRIMARY KEY, name VARCHAR(255), user_id INT N
 
 # Create a table to represent flashcards
 sql('CREATE TABLE flashcards (id SERIAL PRIMARY KEY, question TEXT, answer TEXT, deck_id INT NOT NULL, FOREIGN KEY (deck_id) REFERENCES decks (id));')
-
-# Helper funcs 
-def png_to_text():
-    return 0
-
-def pdf_to_text():
-    return 0
 
 def build_deck(text):
     # Generate prompt based on text from body
