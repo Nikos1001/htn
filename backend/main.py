@@ -16,8 +16,7 @@ co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
 
 def build_deck(text, title = ""):
     # Generate prompt based on text from body
-    prompt = f"""This is a bot that generates questions and answers for a flashcard based on the text input. The question MUST relate to the context provided.
-                context: {title}
+    prompt = f"""This is a bot that generates questions and answers for a flashcard based on the text input. The questions MUST focus on the context provided.
                 Example (FOLLOW THIS FORMAT):
                 Question: What is X  
                 Answer: X is ...
@@ -25,7 +24,10 @@ def build_deck(text, title = ""):
                 Text input: 
                 """ 
     prompt += text
-    prompt += "\n List of questions and answers: \n"
+    prompt += '\nPlease focus on this topic when creating your questions: ' + title + '\n'
+    prompt += "List of questions and answers: \n"
+
+    print('!!!!!!' + title)
 
     response = co.generate(
         model="command-nightly", 
@@ -86,7 +88,7 @@ def getCardsText():
 
     # Generate prompt based on text from body
     text = data['text']
-    deck = build_deck(text)
+    deck = build_deck(text, data['title'])
     data = {
         'deck': deck,
         'text': text
@@ -154,7 +156,7 @@ def decks():
         return jsonify(db.retrieve_db())
     else:
         data = request.get_json()
-        db.add_to_db(data, data["title"])
+        db.add_to_db(data)
         return jsonify({})
 
 @app.route('/question', methods=['POST'])
