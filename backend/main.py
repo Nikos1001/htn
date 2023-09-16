@@ -124,7 +124,8 @@ def getCardsText():
 @app.route('/img_generate', methods=['POST'])
 def img_generate():
     file = request.files['file']
-    file.save('files/' + file.filename)
+    path = 'files/' + file.filename
+    file.save(path)
 
     """Detects text in the file."""
     from google.cloud import vision
@@ -138,17 +139,7 @@ def img_generate():
 
     response = client.text_detection(image=image)
     texts = response.text_annotations
-    print("Texts:")
-
-    for text in texts:
-        print(f'\n"{text.description}"')
-
-        vertices = [
-            f"({vertex.x},{vertex.y})" for vertex in text.bounding_poly.vertices
-        ]
-
-        print("bounds: {}".format(",".join(vertices)))
-
+    
     if response.error.message:
         raise Exception(
             "{}\nFor more info on error messages, check: "
@@ -163,7 +154,6 @@ def img_generate():
 
     data = {
         'deck': deck,
-        'mode' : 'img'
     }
 
     # return

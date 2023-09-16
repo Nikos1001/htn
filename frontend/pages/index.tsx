@@ -43,8 +43,10 @@ async function post(url: string, data: any) {
     formData = new FormData(); 
     formData.append('file', data);
   }
+  let headers = {};
   const response = await fetch(url, {
     method: 'POST',
+    headers: (data instanceof File) ? {} : {'Content-Type': 'application/json'},
     body: data instanceof File ? formData : JSON.stringify(data),
   });
   return response.json();
@@ -97,7 +99,7 @@ export default function Home() {
       case 'notes':
         return <Textarea value={notes} onChange={(e) => setNotes(e.currentTarget.value)} style={{width: '80%'}} placeholder='Your notes'/>;
       case 'ocr':
-        return <FileInput placeholder='Select Photo...' value={photo} onChange={(file) => setPhoto(file)}/>
+        return <FileInput accept='image/*' placeholder='Select Photo...' value={photo} onChange={(file) => setPhoto(file)}/>
     }
   }
 
@@ -110,7 +112,7 @@ export default function Home() {
       {createModalSourceUI()}
       <Button variant='gradient' gradient={buttonGradient} onClick={() => {
       setGeneratorState('generating');
-      post(apiRootURL + (inputSource == 'notes' ? '/getCardsText' : '/img_generate'), inputSource == 'notes' ? {text: notes} : photo)
+      post(apiRootURL + (inputSource == 'notes' ? '/generate' : '/img_generate'), inputSource == 'notes' ? {text: notes} : photo)
       .then((deckData: {deck: {title: string, cards: {question: string, answer: string}[]}}) => {
         confetti({
           particleCount: 100,
