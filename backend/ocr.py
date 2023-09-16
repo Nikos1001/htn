@@ -34,5 +34,10 @@ def detect_text(path):
             "{}\nFor more info on error messages, check: "
             "https://cloud.google.com/apis/design/errors".format(response.error.message)
         )
+    
+    #   # Get the text from the image
+    print("<")
+    print (texts[0].description)
+    print(">")
 
-detect_text("sign_small.jpg") 
+detect_text("test.png") 

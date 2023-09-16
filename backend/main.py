@@ -61,21 +61,37 @@ def build_deck(text):
     print(json)
     return json 
 
-def add_to_db(deckJson): 
-    listOfCards = deckJson["cards"]
-    title = deckJson["title"]
+def sql(query):
+    db.autocommit = True
+    cursor = db.cursor()
+    try:
+        print(f"Query {query} successful")
+        cursor.execute(query)
+    except OperationalError as err:
+        print(f"Error {err}")
 
-    # Add the deck to the database
-    sql("INSERT INTO decks (name, user_id) VALUES ('" + title + "', 1);")
+        
+# def sql(query):
+#     cursor = db.cursor()
+#     cursor.execute(query)
+#     db.commit()
+#     return cursor.fetchall()
 
-    # Get the id of the deck that was just added
-    deckId = sql("SELECT id FROM decks WHERE name='" + title + "';")
+# def add_to_db(deckJson): 
+#     listOfCards = deckJson["cards"]
+#     title = deckJson["title"]
 
-    # Iterate through the cards and add them to the database
-    for card in listOfCards:
-        sql("INSERT INTO flashcards (question, answer, deck_id) VALUES ('" + card["question"] + "', '" + card["answer"] + "', " + deckId + ");")
+#     # Add the deck to the database
+#     sql("INSERT INTO decks (name, user_id) VALUES ('" + title + "', 1);")
+
+#     # Get the id of the deck that was just added
+#     deckId = sql("SELECT id FROM decks WHERE name='" + title + "';")
+
+#     # Iterate through the cards and add them to the database
+#     for card in listOfCards:
+#         sql("INSERT INTO flashcards (question, answer, deck_id) VALUES ('" + card["question"] + "', '" + card["answer"] + "', " + deckId + ");")
     
-    return 0
+#     return 0
 
 app = Flask(__name__)
 CORS(app)
@@ -110,6 +126,49 @@ def img_generate():
     file = request.files['file']
     file.save('files/' + file.filename)
 
-    return '123'
+    """Detects text in the file."""
+    from google.cloud import vision
+
+    client = vision.ImageAnnotatorClient()
+
+    with open(path, "rb") as image_file:
+        content = image_file.read()
+
+    image = vision.Image(content=content)
+
+    response = client.text_detection(image=image)
+    texts = response.text_annotations
+    print("Texts:")
+
+    for text in texts:
+        print(f'\n"{text.description}"')
+
+        vertices = [
+            f"({vertex.x},{vertex.y})" for vertex in text.bounding_poly.vertices
+        ]
+
+        print("bounds: {}".format(",".join(vertices)))
+
+    if response.error.message:
+        raise Exception(
+            "{}\nFor more info on error messages, check: "
+            "https://cloud.google.com/apis/design/errors".format(response.error.message)
+        )
+
+    # Get the text from the image
+    text = texts[0].description
+
+    # Enter the text into the make_deck
+    deck = build_deck(text)
+
+    data = {
+        'deck': deck,
+        'mode' : 'img'
+    }
+
+    # return
+    return jsonify(data)
+    
+
 
 app.run(port=8080)
