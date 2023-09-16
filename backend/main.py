@@ -105,18 +105,11 @@ def getCardsText():
 
     return jsonify(data)
 
-@app.route('/decks', methods=['GET'])
-def getDecks():
+@app.route('/img_generate', methods=['POST'])
+def img_generate():
+    file = request.files['file']
+    file.save('files/' + file.filename)
 
-
-    # This returns the entire database 
-    return 0; 
-
-@app.route('/decks', methods=['POST'])
-def pushDeck():
-    
-
-    # This adds a deck to the database
-    return 0;
+    return '123'
 
 app.run(port=8080)
