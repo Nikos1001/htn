@@ -177,17 +177,21 @@ export default function Home() {
         {generatorState == 'input' ? createModalInputUI() : (generatorState == 'generating' ? createModalGeneratingUI() : createModalDoneUI())}
       </Flex>
     </Modal>
-    {deck && <Flex justify='center' align='center' direction='column' style={{position: 'absolute', top: '0', left: '0', width: '100vw', height: '100vh', pointerEvents: 'none'}}>
-      <Title style={{marginBottom: '50px'}}>{deck.title}</Title>
-      <Carousel getEmblaApi={setEmbla} style={{overflow: 'inherit'}} slideGap='1000px' loop slideSize='70%' w='100%' withControls={false} mx='auto'>
-        {concat(deck.cards, deck.cards).map((card, i) =>
-          <Carousel.Slide>
-            <ReactCardFlip flipSpeedBackToFront={0.3} flipSpeedFrontToBack={0.3} isFlipped={showAnswer} flipDirection='vertical'>
-              <CardDisplay card={card} showAnswer={false}/>
-              <CardDisplay card={card} showAnswer={true}/>
-            </ReactCardFlip>
-          </Carousel.Slide>)}
-      </Carousel> 
-    </Flex>}
+    <Flex justify='center' align='center' direction='column' style={{position: 'absolute', top: '0', left: '0', width: '100vw', height: '100vh', pointerEvents: 'none'}}>
+      {deck ? <> 
+        <Title style={{marginBottom: '50px'}}>{deck.title}</Title>
+        <Carousel getEmblaApi={setEmbla} style={{overflow: 'inherit'}} slideGap='1000px' loop slideSize='70%' w='100%' withControls={false} mx='auto'>
+          {concat(deck.cards, deck.cards).map((card, i) =>
+            <Carousel.Slide>
+              <ReactCardFlip flipSpeedBackToFront={0.3} flipSpeedFrontToBack={0.3} isFlipped={showAnswer} flipDirection='vertical'>
+                <CardDisplay card={card} showAnswer={false}/>
+                <CardDisplay card={card} showAnswer={true}/>
+              </ReactCardFlip>
+            </Carousel.Slide>)}
+        </Carousel>
+      </> : <>
+        <Title>You have no flashdecks yet.</Title>
+      </>}
+    </Flex>
   </>; 
 }
