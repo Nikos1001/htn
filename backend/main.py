@@ -16,8 +16,8 @@ co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
 
 def build_deck(text, title = ""):
     # Generate prompt based on text from body
-    prompt = f"""This is a bot that generates questions and answers for a flashcard based on the text input. The bot will use the title to give context.
-                Title: {title}
+    prompt = f"""This is a bot that generates questions and answers for a flashcard based on the text input. The question MUST relate to the context provided.
+                context: {title}
                 Example (FOLLOW THIS FORMAT):
                 Question: What is X  
                 Answer: X is ...
