@@ -14,6 +14,7 @@ def execute_query(query):
     except OperationalError as err:
         print(f"Error {err}")
 
+# execute_query('DROP TABLE deck_list')
 execute_query("CREATE TABLE IF NOT EXISTS deck_list (id SERIAL PRIMARY KEY, deck JSON)")
 
 def add_to_db(deck):

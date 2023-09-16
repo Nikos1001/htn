@@ -89,6 +89,7 @@ def getCardsText():
     deck = build_deck(text)
     data = {
         'deck': deck,
+        'text': text
     }
 
     return jsonify(data)
@@ -126,6 +127,7 @@ def img_generate():
 
     data = {
         'deck': deck,
+        'text': text
     }
 
     # return
@@ -142,6 +144,7 @@ def webscrape_generate():
     deck = build_deck(text)
     data = {
         'deck': deck,
+        'text': text
     }
     return jsonify(data)
 
@@ -153,5 +156,36 @@ def decks():
         data = request.get_json()
         db.add_to_db(data)
         return jsonify({})
+
+@app.route('/question', methods=['POST'])
+def question():
+    data = request.get_json()
+    text = data['text']
+    prompt = 'This is a bot that generates comprehension questions based on the key concepts presented text input(general ideas, not specific examples).\n'
+    prompt += 'Example output (FOLLOW THIS FORMAT)\n'
+    prompt += 'Question: What is the capital of Great Britain?\n' 
+    prompt += 'Text input:\n'
+    prompt += text
+    prompt += '\nList of questions:\n'
+    response = co.generate(
+        model="command-nightly", 
+        prompt=prompt,
+        max_tokens=100
+    )
+
+    raw_data = ""
+
+    for generation in response.generations:
+        raw_data += generation.text
+
+    lines = raw_data.split('\n')
+    questions = []
+    for line in lines:
+        if 'question:' in line.lower():
+            question = line.replace('Question:', '').replace('question:', '')
+            questions.append(question) 
+
+    return questions 
+
 
 app.run(port=8080)

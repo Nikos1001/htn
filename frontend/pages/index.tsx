@@ -1,33 +1,25 @@
 
-import { Burger, Button, Flex, Drawer, Title, Card, TextInput, Text, Modal, Loader, Textarea, SegmentedControl, FileInput } from "@mantine/core";
+import { Burger, Button, Flex, Drawer, Title, TextInput, Text, Modal, Loader, Textarea, SegmentedControl, FileInput } from "@mantine/core";
+import { Card as MantineCard } from '@mantine/core' 
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import { Carousel, Embla } from '@mantine/carousel';
 import { useEffect, useState } from "react";
 import ReactCardFlip from 'react-card-flip';
 import confetti from 'canvas-confetti'; 
+import { useRouter } from "next/router";
+import { get, post, apiRootURL, Flashdeck, Card } from './common';
 
-const apiRootURL = 'http://127.0.0.1:8080';
-
-type Card = {
-  question: string,
-  answer: string
-};
-
-type Flashdeck = {
-  title: string,
-  cards: Card[]
-};
 
 type GeneratorState = 'input' | 'generating' | 'done';
 type InputSource = 'notes' | 'ocr' | 'webscrape';
 
 const CardDisplay = (props: {card: Card, showAnswer: boolean}) => 
-  <Card radius='xl' style={{width: '100%', height: '400px', boxShadow: '0px 20px 30px rgba(0, 0, 0, 0.2)'}}>
+  <MantineCard radius='xl' style={{width: '100%', height: '400px', boxShadow: '0px 20px 30px rgba(0, 0, 0, 0.2)'}}>
     <Flex justify='center' align='center' direction='column' style={{width: '100%', height: '100%'}}>
       <Title size='h3'>{props.showAnswer ? 'Answer' : 'Question'}</Title>
       <Text size='xl' style={{marginTop: '40px'}}>{props.showAnswer ? props.card.answer : props.card.question}</Text>
     </Flex>
-  </Card>;
+  </MantineCard>;
 
 
 function concat<T>(a: T[], b: T[]) {
@@ -37,26 +29,9 @@ function concat<T>(a: T[], b: T[]) {
   return res;
 }
 
-async function get(url: string) {
-  const response = await fetch(url);
-  return response.json();
-}
-
-async function post(url: string, data: any) {
-  let formData = null;
-  if(data instanceof File) {
-    formData = new FormData(); 
-    formData.append('file', data);
-  }
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: (data instanceof File) ? {} : {'Content-Type': 'application/json'},
-    body: data instanceof File ? formData : JSON.stringify(data),
-  });
-  return response.json();
-}
-
 export default function Home() {
+  const router = useRouter();
+
   const [decklistOpen, {toggle : decklistToggle, close: decklistClose}] = useDisclosure(false);
   const [decks, setDecks] = useState<Flashdeck[]>([]);
   const [openDeck, setOpenDeck] = useState(0);
@@ -138,7 +113,7 @@ export default function Home() {
       <Button variant='gradient' gradient={buttonGradient} onClick={() => {
       setGeneratorState('generating');
       post(apiRootURL + inputTypeToEndpoint[inputSource], getGenerateRequestData()) 
-      .then((deckData: {deck: {title: string, cards: {question: string, answer: string}[]}}) => {
+      .then((deckData: {text: string, deck: {title: string, cards: {question: string, answer: string}[]}}) => {
         confetti({
           particleCount: 100,
           spread: 70,
@@ -146,7 +121,8 @@ export default function Home() {
         });
         setGeneratorState('done');
         const deck: Flashdeck = {
-          title: deckTitle, 
+          title: deckTitle,
+          text: deckData.text,
           cards: deckData.deck.cards.map(cardData => {return {question: cardData.question, answer: cardData.answer};})
         };
         post(apiRootURL + '/decks', deck);
@@ -194,5 +170,11 @@ export default function Home() {
         <Title>You have no flashdecks yet.</Title>
       </>}
     </Flex>
+    <Button style={{position: 'absolute', left: 'calc(100vw - 150px)', top: 'calc(100vh - 70px)'}} variant='gradient' gradient={buttonGradient} onClick={() => {
+      if(!deck)
+        return;
+      localStorage.setItem('deck', JSON.stringify(deck));
+      router.push('/quiz');
+    }}>Quiz Me...</Button>
   </>; 
 }
