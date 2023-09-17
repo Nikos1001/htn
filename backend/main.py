@@ -19,9 +19,10 @@ co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
 def build_deck(text, title = ""):
     # Generate prompt based on text from body
     prompt = f"""
-    Create a bullet list of three to five questions using the keywords {title} given a text passage. 
+    Create a bullet list of three to five questions for flashcards using the keywords {title} given a text passage. 
     Length: each question and answer must be fifteen to twenty words. 
-
+    
+    Use the following format for questions and answers:
     Text: In common usage, a force is a push or a pull, as the examples in Figure 4.1 illustrate. In football, an offensive lineman pushes against his opponent. The tow bar attached to a speeding boat pulls a water skier. Forces such as those that push against the football player or pull the skier are called contact forces, because they arise from the physical contact between two objects. There are circumstances, however, in which two objects exert forces on one another even though they are not touching. Such forces are referred to as noncontact forces or action-at-a-distance forces. One example of such a noncontact force occurs when a diver is pulled toward the earth because of the force of gravity. 
     Question:
     - What is a force?
@@ -50,6 +51,7 @@ def build_deck(text, title = ""):
     Answer:
     - Burning gasoline is a chemical change.
 
+    Generate the following questions and answers for the given text:
     Text: {text}
 
     Question:
@@ -58,7 +60,7 @@ def build_deck(text, title = ""):
     #currently fixing the input to improve
 
     response = co.generate(
-        model="command-nightly", 
+        model="command", 
         prompt=prompt,
         max_tokens=250,
         temperature = 0
@@ -262,6 +264,11 @@ def answer():
     User answer: Contact forces are forces not resulting from physical contact.
     Feedback: Incorrect. Contact forces result from physical contact between two objects.
 
+    Text: Any piece of informaion
+    Question: Any question
+    Answer: I am not sure / I don't know
+    Feedback: Incorrect. 
+
     Text: {text}
     Question: {question}
     Answer: {computer_answer}
@@ -270,7 +277,7 @@ def answer():
     """
 
     answers = co.generate(
-        model="command-nightly",
+        model="command",
         prompt = prompt,
         max_tokens=50,
         temperature=0
