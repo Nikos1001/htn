@@ -51,6 +51,8 @@ def build_deck(text, title = ""):
     - Chemical properties include corrosiveness, flammability, acidity, and toxicity
 
     Text: {text}
+
+    Question:
     """
 
     #currently fixing the input to improve
