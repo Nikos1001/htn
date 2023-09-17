@@ -1,6 +1,7 @@
 
 .mantine-Carousel-viewport {
     overflow: visible !important;
+    overflow-y: visible !important;
 }
 
 canvas {

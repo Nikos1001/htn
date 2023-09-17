@@ -294,4 +294,4 @@ def answer():
     return {'feedback': raw_data} 
 
 
-app.run(port=8080, host="10.33.132.221")
+app.run(port=8080)

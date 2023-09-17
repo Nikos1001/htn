@@ -1,5 +1,5 @@
 
-import { Burger, Button, Flex, Drawer, Title, TextInput, Text, Modal, Loader, Textarea, SegmentedControl, FileInput } from "@mantine/core";
+import { Image, Burger, Button, Flex, Drawer, Title, TextInput, Text, Modal, Loader, Textarea, SegmentedControl, FileInput, Center } from "@mantine/core";
 import { Card as MantineCard } from '@mantine/core' 
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import { Carousel, Embla } from '@mantine/carousel';
@@ -144,6 +144,9 @@ export default function Home() {
   return <>
     <Burger opened={decklistOpen} onClick={decklistToggle}/>
     <Drawer opened={decklistOpen} onClose={decklistClose}>
+      <Center>
+        <Image height='150px' width='auto' src='./logo.png'/>
+      </Center>
       <Title size='h4'>Flashdecks</Title>
       {decks.map((deck, i) => <Button key={i} variant={i == openDeck ? 'light' : 'subtle'} style={{marginTop: '10px', display: 'block'}} onClick={() => {setOpenDeck(i); decklistClose(); hideAnswer(); embla?.scrollTo(0, true)}}>{deck.title}</Button>)}
       <Button variant='gradient' style={{marginTop: '10px', display: 'block'}} gradient={buttonGradient} onClick={() => {decklistClose(); openCreateModel(); clearCreateModalParams();}}>Create Flashdeck</Button>
