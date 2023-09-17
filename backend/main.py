@@ -79,13 +79,18 @@ def build_deck(text, title = ""):
         "title": "temptitle"
     }
 
-    for i in range(0, len(lines), 2):
+    content_lines = []
+    for line in lines:
+        if '- ' in line or 'Answer: ' in line:
+            content_lines.append(line.replace('- ', '').replace('Answer: ', ''))
+
+    for i in range(0, (len(content_lines) // 2) * 2, 2):
         json['cards'].append({
-            'question': lines[i].replace('- ', ''),
-            'answer': lines[i + 1].replace('Answer: ', '')
+            'question': content_lines[i].replace('- ', ''),
+            'answer': content_lines[i + 1].replace('Answer: ', '')
         })
 
-    print(json)
+    print(lines)
 
     # Iterate through the lines
     # for line in lines:
@@ -206,6 +211,9 @@ def decks():
 def question():
     data = request.get_json()
     text = data['text']
+
+    return build_deck(text)['cards']
+
     title = data['title']
 
     prompt = f"""
@@ -249,7 +257,9 @@ def question():
     questions = []
     for line in lines:
         if '- ' in line or 'question: ' in line.lower() or re.search('[0-9]*\.', line):
-            questions.append(line.replace('- ', '').replace('Question: ', '').replace('question: ', '')) 
+            question = line.replace('- ', '').replace('Question: ', '').replace('question: ', '')
+            answer = 'uhhhhhhhhh'
+            questions.append({'q': question, 'a': answer}) 
 
     return questions 
 
@@ -258,15 +268,17 @@ def answer():
     data = request.get_json()
     text = data['text']
     question = data['question']
+    computer_answer = data['computer_answer']
     answer = data['answer']
+
+    print('!!!!!!!!!!' + computer_answer)
 
     if len(answer) == 0:
         return 'Incorrect'
 
     prompt = f"""
     {text}
-    First, given the above text passage, determine the given answer to the question {question}.
-    Next, compare the given answer to the user answer {answer} and give feedback. 
+    Compare the computer answer {computer_answer} to the user answer {answer} and give feedback. 
     Length: the feedback must be between fifteen and twenty words.
 
     Use the following format for feedback:
@@ -299,7 +311,7 @@ def answer():
 
     Text: {text}
     Question: {question}
-    Answer: <the given answer>
+    Answer: {computer_answer}
     User answer: {answer}
     Feedback:
     """

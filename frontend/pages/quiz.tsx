@@ -11,7 +11,7 @@ type FeedbackState = 'input' | 'generating' | 'done';
 
 export default function Quiz() {
     const [quizState, setQuizState] = useState<QuizState>('generating');
-    const [questions, setQuestions] = useState<string[] | null>(null);
+    const [questions, setQuestions] = useState<{question: string, answer: string}[] | null>(null);
     const [currQuestion, setCurrQuestion] = useState(0);
     const [feedback, setFeedback] = useState<string | null>(null);
     const [feedbackState, setFeedbackState] = useState<FeedbackState>('input');
@@ -40,7 +40,8 @@ export default function Quiz() {
                         setFeedbackState('generating');
                         post(apiRootURL() + '/answer', {
                             text: deck?.text,
-                            question: questions ? questions[currQuestion] : '',
+                            question: questions ? questions[currQuestion].question : '',
+                            computer_answer: questions ? questions[currQuestion].answer : '',
                             answer: answer
                         }).then(feedback => {
                             setFeedbackState('done');
@@ -89,7 +90,7 @@ export default function Quiz() {
                 </>;
             case 'quiz':
                 return <>
-                    <Title size='h2' style={{marginBottom: '50px'}}>{questions ? questions[currQuestion] : ''}</Title>
+                    <Title size='h2' style={{marginBottom: '50px'}}>{questions ? questions[currQuestion].question : ''}</Title>
                     <Textarea value={answer} onChange={(e) => setAnswer(e.currentTarget.value)} style={{marginBottom: '40px', width: '800px'}} minRows={5} placeholder='Answer'/>
                     {getFeedbackUI()}
                 </>;
