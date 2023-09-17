@@ -175,65 +175,33 @@ def question():
     data = request.get_json()
     text = data['text']
     title = data['title']
-    prompt = 'This is a bot that generates open-ended non-specific comprehension questions based on the key concepts presented text input.\n'
-    prompt += """
-Text: In common usage, a force is a push or a pull, as the examples in Figure 4.1 illustrate. In
-football, an offensive lineman pushes against his opponent. The tow bar attached to a speed-
-ing boat pulls a water skier. Forces such as those that push against the football player or pull
-the skier are called contact forces, because they arise from the physical contact between
-two objects. There are circumstances, however, in which two objects exert forces on one
-another even though they are not touching. Such forces are referred to as noncontact forces
-or action-at-a-distance forces. One example of such a noncontact force occurs when a
-diver is pulled toward the earth because of the force of gravity. The earth exerts this force
-even when it is not in direct contact with the diver. In Figure 4.1, arrows are used to rep-
-resent the forces. It is appropriate to use arrows, because a force is a vector quantity and
-has both a magnitude and a direction. The direction of the arrow gives the direction of the
-force, and the length is proportional to its strength or magnitude.
-The word mass is just as familiar as the word force. A massive supertanker, for
-instance, is one that contains an enormous amount of mass. As we will see in the next
-section, it is difficult to set such a massive object into motion and difficult to bring it to a
-halt once it is moving. In comparison, a penny does not contain much mass. The emphasis
-here is on the amount of mass, and the idea of direction is of no concern. Therefore, mass
-is a scalar quantity.
 
-The following question and answer is good because both are short and clear.
-Good question: What is a force?
-Good answer: A force is a push or a pull.
+    prompt = f"""
+    Create a bullet list of three to five questions using the keywords {title} given a text passage. 
+    Length: each question must be fifteen to twenty words.    
 
-The following answer is bad because it includes unecessary information.
-Bad anwer: A force is a push or a pull, as the examples in Figure 4.1 illustrate.
+    Text: In common usage, a force is a push or a pull, as the examples in Figure 4.1 illustrate. In football, an offensive lineman pushes against his opponent. The tow bar attached to a speeding boat pulls a water skier. Forces such as those that push against the football player or pull the skier are called contact forces, because they arise from the physical contact between two objects. There are circumstances, however, in which two objects exert forces on one another even though they are not touching. Such forces are referred to as noncontact forces or action-at-a-distance forces. One example of such a noncontact force occurs when a diver is pulled toward the earth because of the force of gravity. 
+    Questions:
+    - What is a force?
+    - What are contact forces?
+    - What are action-at-a-distance forces?
 
-The following question and answer is bad because it is does not focus on the key concepts of the text.
-Bad question: What is a massive supertanker?
-Bad answer: A massive supertanker, forinstance, is one that contains an enormous amount of mass.
+    Text: Physical and chemical changes are a manifestation of physical and chemical properties. A physical property is one that a substance displays without changing its composition, whereas a chemical property is one that a substance displays only by changing its composition via a chemical change. The smell of gasoline is a physical property- gasoline does not change its composition when it exhibits its odour. The combustibility of gasoline, in contrast, is a chemical property- gasoline does change its composition when it burns, turning into completely new substances (primarily carbon dioxide and water). Physical properties include odour, taste, colour, appearance, melting point, boiling point, and density. Chemical properties include corrosiveness, flammability, acidity, toxicity, and other such characteristics
+    Questions:
+    - What are chemical properties?
+    - What are physical properties? 
+    - List one example of a chemical property
+    - List one example of a physical property 
 
-The following question and answer is good because both are short and clear.
-Good question: What do you call two forces that exert forces on one another even though they are not touching?
-Good answer: These forces are called noncontact forces or action-at-a-distance forces.
-
-
-    Another Text:
-
-    World War II or the Second World War, often abbreviated as WWII or WW2, was a global conflict that lasted from 1939 to 1945. The vast majority of the world's countries, including all of the great powers, fought as part of two opposing military alliances: the Allies and the Axis. Many participants threw their economic, industrial, and scientific capabilities behind this total war, blurring the distinction between civilian and military resources. Aircraft played a major role, enabling the strategic bombing of population centres and the delivery of the only two nuclear weapons ever used in war. World War II was by far the deadliest conflict in history, resulting in an estimated 70 to 85 million fatalities, mostly among civilians. Tens of millions died due to genocides (including the Holocaust), starvation, massacres, and disease. In the wake of Axis defeat, Germany, Austria and Japan were occupied, and war crimes tribunals were conducted against German and Japanese leaders.
-    The causes of World War II are debated, but contributing factors included the Second Italo-Ethiopian War, Spanish Civil War, Second Sino-Japanese War, Soviet–Japanese border conflicts, the rise of fascism in Europe, and European tensions in the aftermath of World War I. World War II is generally considered to have begun on 1 September 1939, when Nazi Germany, under Adolf Hitler, invaded Poland. The United Kingdom and France subsequently declared war on Germany on 3 September. Under the Molotov–Ribbentrop Pact of August 1939, Germany and the Soviet Union had partitioned Poland and marked out their "spheres of influence" across Finland, Estonia, Latvia, Lithuania and Romania. From late 1939 to early 1941, in a series of campaigns and treaties, Germany conquered or controlled much of continental Europe, in a military alliance with Italy, Japan and other countries called the Axis. Following the onset of campaigns in North Africa and East Africa, and the fall of France in mid-1940, the war continued primarily between the European Axis powers and the British Empire, with war in the Balkans, the aerial Battle of Britain, the Blitz of the United Kingdom, and the Battle of the Atlantic. On 22 June 1941, Germany led the European Axis powers in an invasion of the Soviet Union, opening the Eastern Front, the largest land theatre of war in history.
-
-    The following two questions are very bad because it is too broad and all-encompassing.
-    Very Bad Question: What is the signficance of WW2?
-    Very Bad Question: What is the history of WW2?
-    The following question is good because it is specific.
-    Good Question: What alliances fought in WW2?
-    Good Answer: Axis and Allies.
-
+    Text: {text}
+    Questions:
+    - 
     """
-    prompt += 'Please generate questions about the following text input:\n'
-    prompt += 'Text input:\n'
-    prompt += text
-    prompt += '\nPlease use ' + title + ' in your questions.\n'
-    prompt += 'Provide a bulleted list of three to five questions.\n'
     response = co.generate(
         model="command-nightly", 
         prompt=prompt,
-        max_tokens=600
+        max_tokens=250,
+        temperature=0
     )
 
     print(prompt)
@@ -260,88 +228,76 @@ def answer():
     question = data['question']
     answer = data['answer']
 
-    #     # print(raw_data)
-
-    # response = co.rerank(
-    #     model='rerank-english-v2.0',
-    #     query=f'{text}\n\n{question}',
-    #     documents = answers,
-    #     top_n = 3,
-    # )
-
-    # print(response)
-
     if len(answer) == 0:
         return 'Incorrect'
 
-    prompt = ''
-    prompt += 'State if the answer to the question is partially correct or incorrect. If incorrect, explain why in fifteen to twenty words but no more and no less. If an answer is partially correct but is not detailed, state it is correct.\n'
-    prompt += 'Example (FOLLOW THIS FORMAT):\n'
-    prompt += """
-    The animal populace of the poorly run Manor Farm near Willingdon, England, is ripened for rebellion by neglect at the hands of the irresponsible and alcoholic farmer, Mr. Jones. One night, the exalted boar, Old Major, holds a conference, at which he calls for the overthrow of humans and teaches the animals a revolutionary song called "Beasts of England". When Old Major dies, two young pigs, Snowball and Napoleon, assume command and stage a revolt, driving Mr. Jones off the farm and renaming the property "Animal Farm". They adopt the Seven Commandments of Animalism, the most important of which is, "All animals are equal". The decree is painted in large letters on one side of the barn. Snowball teaches the animals to read and write, while Napoleon educates young puppies on the principles of Animalism. To commemorate the start of Animal Farm, Snowball raises a green flag with a white hoof and horn. Food is plentiful, and the farm runs smoothly. The pigs elevate themselves to positions of leadership and set aside special food items, ostensibly for their health. Following an unsuccessful attempt by Mr. Jones and his associates to retake the farm (later dubbed the "Battle of the Cowshed"), Snowball announces his plans to modernise the farm by building a windmill. Napoleon disputes this idea, and matters come to a head, which culminates in Napoleon's dogs chasing Snowball away and Napoleon effectively declaring himself supreme commander.
-
-    Question: Why does Old Major hold a conference?
-    Answer: To call for the overthrow of people at the farm.
-    Good feedback: Correct.
-
-    Question: What is the role of Old Major in the story?
-    Answer: He is a pig.
-    The following feedback is good because it adds necessary detail that was missing from the answer.
-    Good Feedback: Incorrect. Old Major plays a signficant role in starting the animal rebellion.
-    The following feedback is bad, because it fails to mention Old Major's significance to the plot
-    Bad Feedback: Correct.
-
-    Question: What is Animalism?
-    Answer: The ideology of the animal-run farm.
-    The following feedback is good because the answer gave all the detail it needed to.
-    Good Feedback: Correct.
-    The following feedback is bad because it gives too much detail. 
-    Bad Feedback: Incorrect. Animalism was adopted after the farm was renamed to "animal farm". Animalism has 7 commandments, the most important of which being "All animals are equal". Animalism was taught to puppies by Napoleon who assumed power after the revolution.
-
-
-
-    Another example:
-
-    moraine, accumulation of rock debris (till) carried or deposited by a glacier. The material, which ranges in size from blocks or boulders (usually faceted or striated) to sand and clay, is unstratified when dropped by the glacier and shows no sorting or bedding. Several kinds of moraines are recognized:
-    A ground moraine consists of an irregular blanket of till deposited under a glacier. Composed mainly of clay and sand, it is the most widespread deposit of continental glaciers. Although seldom more than 5 metres (15 feet) thick, it may attain a thickness of 20 m.
-    A terminal, or end, moraine consists of a ridgelike accumulation of glacial debris pushed forward by the leading glacial snout and dumped at the outermost edge of any given ice advance. It curves convexly down the valley and may extend up the sides as lateral moraines. It may appear as a belt of hilly ground with knobs and kettles.
-    A lateral moraine consists of debris derived by erosion and avalanche from the valley wall onto the edge of a glacier and ultimately deposited as an elongate ridge when the glacier recedes.
-    A medial moraine consists of a long, narrow line or zone of debris formed when lateral moraines join at the intersection of two ice streams; the resultant moraine is in the middle of the combined glacier. It is deposited as a ridge, roughly parallel to the direction of ice movement.
-    A recessional moraine consists of a secondary terminal moraine deposited during a temporary glacial standstill. Such deposits reveal the history of glacial retreats along the valley; in some instances 10 or more recessional moraines are present in a given valley, and the ages of growing trees or other sources of dates provide a chronology of glacial movements.
-
-    Question: What is a moraine?
-    Answer: A moraine is rock debris carried by a glacier
-    Good Feedback: Correct
-    The following feedback is bad because it does not accurately represent the given material
-    Bad Feedback: Incorrect. A moraine is a glacier full of rock debris.
-    The following feedback is bad because it gived detail unrelated to the question. 
-    Bad Feedback: Incorrect. Moraines are categorized into the following categories: ground moraines, terminal moraines, lateral moraines, medial moraines, and recessional moraines.
-
-    Question: How is a lateral moraine formed?
-    Answer: A lateral moraine forms due to errosion.
-    The following feedback is bad because it fails to mention an important detail of lateral moraines.
-    Bad Feedback: Correct.
-    Good Feedback: Incorrect. A lateral moraine forms due to erosion from avalanches.
-
-
+    prompt = f"""
+    Given a text passage {text}, question{question} 
 
     """
-    # prompt += 'Question: What is the capital of England?\n'
-    # prompt += 'Answer: London is the capital of England.\n'
-    # prompt += 'Feedback: Correct.\n'
-    # prompt += 'Question: What is the capital of France?\n'
-    # prompt += 'Answer: Rome is the capital of France.\n'
-    # prompt += 'Feedback: Incorrect. Rome is the capital of Italy, not France. The capital of France is Paris.\n\n'
-    prompt += 'Text input:\n'
-    prompt += text
-    prompt += '\nQuestion: ' + question + '\n'
-    prompt += 'Answer: ' + answer + '\n'
-    prompt += 'Feedback:\n'
+
+    # prompt += 'Task: state if input and aoutiput match. If do not match, explain why in at most twenty words. If very similar, state that input and output match.    
+    # prompt += """
+    # Text: The animal populace of the poorly run Manor Farm near Willingdon, England, is ripened for rebellion by neglect at the hands of the irresponsible and alcoholic farmer, Mr. Jones. One night, the exalted boar, Old Major, holds a conference, at which he calls for the overthrow of humans and teaches the animals a revolutionary song called "Beasts of England". When Old Major dies, two young pigs, Snowball and Napoleon, assume command and stage a revolt, driving Mr. Jones off the farm and renaming the property "Animal Farm". They adopt the Seven Commandments of Animalism, the most important of which is, "All animals are equal". The decree is painted in large letters on one side of the barn. Snowball teaches the animals to read and write, while Napoleon educates young puppies on the principles of Animalism. To commemorate the start of Animal Farm, Snowball raises a green flag with a white hoof and horn. Food is plentiful, and the farm runs smoothly. The pigs elevate themselves to positions of leadership and set aside special food items, ostensibly for their health. Following an unsuccessful attempt by Mr. Jones and his associates to retake the farm (later dubbed the "Battle of the Cowshed"), Snowball announces his plans to modernise the farm by building a windmill. Napoleon disputes this idea, and matters come to a head, which culminates in Napoleon's dogs chasing Snowball away and Napoleon effectively declaring himself supreme commander.
+    # The following is a list of questions with good and bad feedback.
+    # Question: Why does Old Major hold a conference?
+    # Answer: To call for the overthrow of people at the farm.
+    # Good feedback: Correct.
+
+    # Question: What is the role of Old Major in the story?
+    # Answer: He is a pig.
+    # The following feedback is good because it adds necessary detail that was missing from the answer.
+    # Good Feedback: Incorrect. Old Major plays a signficant role in starting the animal rebellion.
+    # The following feedback is bad, because it fails to mention Old Major's significance to the plot
+    # Bad Feedback: Correct.
+
+    # Question: What is Animalism?
+    # Answer: The ideology of the animal-run farm.
+    # The following feedback is good because the answer gave all the detail it needed to.
+    # Good Feedback: Correct.
+    # The following feedback is bad because it gives too much detail. 
+    # Bad Feedback: Incorrect. Animalism was adopted after the farm was renamed to "animal farm". Animalism has 7 commandments, the most important of which being "All animals are equal". Animalism was taught to puppies by Napoleon who assumed power after the revolution.
+
+    # Text: moraine, accumulation of rock debris (till) carried or deposited by a glacier. The material, which ranges in size from blocks or boulders (usually faceted or striated) to sand and clay, is unstratified when dropped by the glacier and shows no sorting or bedding. Several kinds of moraines are recognized:
+    # A ground moraine consists of an irregular blanket of till deposited under a glacier. Composed mainly of clay and sand, it is the most widespread deposit of continental glaciers. Although seldom more than 5 metres (15 feet) thick, it may attain a thickness of 20 m.
+    # A terminal, or end, moraine consists of a ridgelike accumulation of glacial debris pushed forward by the leading glacial snout and dumped at the outermost edge of any given ice advance. It curves convexly down the valley and may extend up the sides as lateral moraines. It may appear as a belt of hilly ground with knobs and kettles.
+    # A lateral moraine consists of debris derived by erosion and avalanche from the valley wall onto the edge of a glacier and ultimately deposited as an elongate ridge when the glacier recedes.
+    # A medial moraine consists of a long, narrow line or zone of debris formed when lateral moraines join at the intersection of two ice streams; the resultant moraine is in the middle of the combined glacier. It is deposited as a ridge, roughly parallel to the direction of ice movement.
+    # A recessional moraine consists of a secondary terminal moraine deposited during a temporary glacial standstill. Such deposits reveal the history of glacial retreats along the valley; in some instances 10 or more recessional moraines are present in a given valley, and the ages of growing trees or other sources of dates provide a chronology of glacial movements.
+
+    # The following is a list of questions with good and bad feedback.
+    # Question: What is a moraine?
+    # Answer: A moraine is rock debris carried by a glacier
+    # Good Feedback: Correct
+    # The following feedback is bad because it does not accurately represent the given material
+    # Bad Feedback: Incorrect. A moraine is a glacier full of rock debris.
+
+    # Question: How is a lateral moraine formed?
+    # Answer: A lateral moraine forms due to errosion.
+    # The following feedback is bad because it fails to mention an important detail of lateral moraines.
+    # Bad Feedback: Correct.
+    # Good Feedback: Incorrect. A lateral moraine forms due to erosion from avalanches.
+
+    # MOST IMPORTANTLY, the bot must ONLY give good feedback.
+
+    # """
+    # # prompt += 'Question: What is the capital of England?\n'
+    # # prompt += 'Answer: London is the capital of England.\n'
+    # # prompt += 'Feedback: Correct.\n'
+    # # prompt += 'Question: What is the capital of France?\n'
+    # # prompt += 'Answer: Rome is the capital of France.\n'
+    # # prompt += 'Feedback: Incorrect. Rome is the capital of Italy, not France. The capital of France is Paris.\n\n'
+    # prompt += 'Text input:\n'
+    # prompt += text
+    # prompt += '\nQuestion: ' + question + '\n'
+    # prompt += 'Answer: ' + answer + '\n'
+    # prompt += 'Feedback:\n'
 
     answers = co.generate(
         model="command-nightly",
         prompt = prompt,
-        max_tokens= 600
+        max_tokens=50,
+        temperature=0
     )
 
     raw_data = ""
