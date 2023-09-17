@@ -51,9 +51,7 @@ def build_deck(text, title = ""):
     Answer:
     - Burning gasoline is a chemical change.
 
-    Generate the following questions and answers for the given text:
     Text: {text}
-
     Question:
     """
 
@@ -263,11 +261,6 @@ def answer():
     Answer: Contact forces are forces that arise from the physical contact between two objects.
     User answer: Contact forces are forces not resulting from physical contact.
     Feedback: Incorrect. Contact forces result from physical contact between two objects.
-
-    Text: Any piece of informaion
-    Question: Any question
-    Answer: I am not sure / I don't know
-    Feedback: Incorrect. 
 
     Text: {text}
     Question: {question}
