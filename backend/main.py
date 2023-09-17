@@ -239,8 +239,8 @@ def answer():
 
     Use the following format for feedback:
     If the given answer and user answer are similar, state correct.
-    If the given answer and user answer are different, state incorrect, and describe the differences.
-
+    If the given answer and user answer are very different or the user answer is incomplete, state incorrect, and describe the differences.
+ 
     Text: In common usage, a force is a push or a pull, as the examples in Figure 4.1 illustrate. In football, an offensive lineman pushes against his opponent. The tow bar attached to a speeding boat pulls a water skier. Forces such as those that push against the football player or pull the skier are called contact forces, because they arise from the physical contact between two objects. There are circumstances, however, in which two objects exert forces on one another even though they are not touching. Such forces are referred to as noncontact forces or action-at-a-distance forces. One example of such a noncontact force occurs when a diver is pulled toward the earth because of the force of gravity. 
     Question: What is a force?
     Answer: A force is a push or pull.
@@ -271,63 +271,6 @@ def answer():
     User answer: {answer}
     Feedback:
     """
-
-    # prompt += 'Task: state if input and aoutiput match. If do not match, explain why in at most twenty words. If very similar, state that input and output match.    
-    # prompt += """
-    # Text: The animal populace of the poorly run Manor Farm near Willingdon, England, is ripened for rebellion by neglect at the hands of the irresponsible and alcoholic farmer, Mr. Jones. One night, the exalted boar, Old Major, holds a conference, at which he calls for the overthrow of humans and teaches the animals a revolutionary song called "Beasts of England". When Old Major dies, two young pigs, Snowball and Napoleon, assume command and stage a revolt, driving Mr. Jones off the farm and renaming the property "Animal Farm". They adopt the Seven Commandments of Animalism, the most important of which is, "All animals are equal". The decree is painted in large letters on one side of the barn. Snowball teaches the animals to read and write, while Napoleon educates young puppies on the principles of Animalism. To commemorate the start of Animal Farm, Snowball raises a green flag with a white hoof and horn. Food is plentiful, and the farm runs smoothly. The pigs elevate themselves to positions of leadership and set aside special food items, ostensibly for their health. Following an unsuccessful attempt by Mr. Jones and his associates to retake the farm (later dubbed the "Battle of the Cowshed"), Snowball announces his plans to modernise the farm by building a windmill. Napoleon disputes this idea, and matters come to a head, which culminates in Napoleon's dogs chasing Snowball away and Napoleon effectively declaring himself supreme commander.
-    # The following is a list of questions with good and bad feedback.
-    # Question: Why does Old Major hold a conference?
-    # Answer: To call for the overthrow of people at the farm.
-    # Good feedback: Correct.
-
-    # Question: What is the role of Old Major in the story?
-    # Answer: He is a pig.
-    # The following feedback is good because it adds necessary detail that was missing from the answer.
-    # Good Feedback: Incorrect. Old Major plays a signficant role in starting the animal rebellion.
-    # The following feedback is bad, because it fails to mention Old Major's significance to the plot
-    # Bad Feedback: Correct.
-
-    # Question: What is Animalism?
-    # Answer: The ideology of the animal-run farm.
-    # The following feedback is good because the answer gave all the detail it needed to.
-    # Good Feedback: Correct.
-    # The following feedback is bad because it gives too much detail. 
-    # Bad Feedback: Incorrect. Animalism was adopted after the farm was renamed to "animal farm". Animalism has 7 commandments, the most important of which being "All animals are equal". Animalism was taught to puppies by Napoleon who assumed power after the revolution.
-
-    # Text: moraine, accumulation of rock debris (till) carried or deposited by a glacier. The material, which ranges in size from blocks or boulders (usually faceted or striated) to sand and clay, is unstratified when dropped by the glacier and shows no sorting or bedding. Several kinds of moraines are recognized:
-    # A ground moraine consists of an irregular blanket of till deposited under a glacier. Composed mainly of clay and sand, it is the most widespread deposit of continental glaciers. Although seldom more than 5 metres (15 feet) thick, it may attain a thickness of 20 m.
-    # A terminal, or end, moraine consists of a ridgelike accumulation of glacial debris pushed forward by the leading glacial snout and dumped at the outermost edge of any given ice advance. It curves convexly down the valley and may extend up the sides as lateral moraines. It may appear as a belt of hilly ground with knobs and kettles.
-    # A lateral moraine consists of debris derived by erosion and avalanche from the valley wall onto the edge of a glacier and ultimately deposited as an elongate ridge when the glacier recedes.
-    # A medial moraine consists of a long, narrow line or zone of debris formed when lateral moraines join at the intersection of two ice streams; the resultant moraine is in the middle of the combined glacier. It is deposited as a ridge, roughly parallel to the direction of ice movement.
-    # A recessional moraine consists of a secondary terminal moraine deposited during a temporary glacial standstill. Such deposits reveal the history of glacial retreats along the valley; in some instances 10 or more recessional moraines are present in a given valley, and the ages of growing trees or other sources of dates provide a chronology of glacial movements.
-
-    # The following is a list of questions with good and bad feedback.
-    # Question: What is a moraine?
-    # Answer: A moraine is rock debris carried by a glacier
-    # Good Feedback: Correct
-    # The following feedback is bad because it does not accurately represent the given material
-    # Bad Feedback: Incorrect. A moraine is a glacier full of rock debris.
-
-    # Question: How is a lateral moraine formed?
-    # Answer: A lateral moraine forms due to errosion.
-    # The following feedback is bad because it fails to mention an important detail of lateral moraines.
-    # Bad Feedback: Correct.
-    # Good Feedback: Incorrect. A lateral moraine forms due to erosion from avalanches.
-
-    # MOST IMPORTANTLY, the bot must ONLY give good feedback.
-
-    # """
-    # # prompt += 'Question: What is the capital of England?\n'
-    # # prompt += 'Answer: London is the capital of England.\n'
-    # # prompt += 'Feedback: Correct.\n'
-    # # prompt += 'Question: What is the capital of France?\n'
-    # # prompt += 'Answer: Rome is the capital of France.\n'
-    # # prompt += 'Feedback: Incorrect. Rome is the capital of Italy, not France. The capital of France is Paris.\n\n'
-    # prompt += 'Text input:\n'
-    # prompt += text
-    # prompt += '\nQuestion: ' + question + '\n'
-    # prompt += 'Answer: ' + answer + '\n'
-    # prompt += 'Feedback:\n'
 
     answers = co.generate(
         model="command-nightly",
