@@ -42,13 +42,13 @@ def build_deck(text, title = ""):
     Answer:
     - A property that a substance displays only by changing its composition
     Question:
-    - What are physical properties?
-    Answer:
-    - A property that a substance displays without changing its composition
-    Question:
     - List chemical properties
     Answer:
     - Chemical properties include corrosiveness, flammability, acidity, and toxicity
+    Question:
+    - Is burning gasoline a physical or chemical change?
+    Answer:
+    - Burning gasoline is a chemical change.
 
     Text: {text}
 
@@ -216,55 +216,6 @@ def question():
 
     return build_deck(text)['cards']
 
-    title = data['title']
-
-    prompt = f"""
-    Create a bullet list of three to five questions using the keywords {title} given a text passage. 
-    Length: each question must be fifteen to twenty words.    
-
-    Text: In common usage, a force is a push or a pull, as the examples in Figure 4.1 illustrate. In football, an offensive lineman pushes against his opponent. The tow bar attached to a speeding boat pulls a water skier. Forces such as those that push against the football player or pull the skier are called contact forces, because they arise from the physical contact between two objects. There are circumstances, however, in which two objects exert forces on one another even though they are not touching. Such forces are referred to as noncontact forces or action-at-a-distance forces. One example of such a noncontact force occurs when a diver is pulled toward the earth because of the force of gravity. 
-    Questions:
-    - What is a force?
-    - What are contact forces?
-    - What are action-at-a-distance forces?
-
-    Text: Physical and chemical changes are a manifestation of physical and chemical properties. A physical property is one that a substance displays without changing its composition, whereas a chemical property is one that a substance displays only by changing its composition via a chemical change. The smell of gasoline is a physical property-gasoline does not change its composition when it exhibits its odour. The combustibility of gasoline, in contrast, is a chemical property- gasoline does change its composition when it burns, turning into completely new substances (primarily carbon dioxide and water). Physical properties include odour, taste, colour, appearance, melting point, boiling point, and density. Chemical properties include corrosiveness, flammability, acidity, toxicity, and other such characteristics
-    Questions:
-    - What are chemical properties?
-    - What are physical properties? 
-    - List physical properties
-    - List chemical properties 
-
-    Text: {text}
-    Questions:
-    - 
-    """
-    response = co.generate(
-        model="command-nightly", 
-        prompt=prompt,
-        max_tokens=250,
-        temperature=0
-    )
-
-    # print(prompt)
-
-    raw_data = ""
-
-    for generation in response.generations:
-        raw_data += generation.text
-
-    print(raw_data)
-
-    lines = raw_data.split('\n')
-    questions = []
-    for line in lines:
-        if '- ' in line or 'question: ' in line.lower() or re.search('[0-9]*\.', line):
-            question = line.replace('- ', '').replace('Question: ', '').replace('question: ', '')
-            answer = 'uhhhhhhhhh'
-            questions.append({'q': question, 'a': answer}) 
-
-    return questions 
-
 @app.route('/answer', methods=['POST'])
 def answer():
     data = request.get_json()
@@ -340,4 +291,4 @@ def answer():
     return {'feedback': raw_data} 
 
 
-app.run(port=8080)
+app.run(port=8080, host="10.33.132.221")
