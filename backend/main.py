@@ -18,23 +18,48 @@ co = cohere.Client('66dAWH9FogjnzRBEt8NT0sWp0m8lOZmbnFN83Rgv')
 
 def build_deck(text, title = ""):
     # Generate prompt based on text from body
-    prompt = f"""This is a bot that generates questions and answers for a flashcard based on the text input. The questions MUST focus on the context provided.
-                Example (FOLLOW THIS FORMAT):
-                Question: What is X  
-                Answer: X is ...
-                
-                Text input: 
-                """ 
-    prompt += text
-    prompt += '\nPlease use ' + title + ' in your questions.\n'
-    prompt += "List of questions and answers: \n"
+    prompt = f"""
+    Create a bullet list of three to five questions using the keywords {title} given a text passage. 
+    Length: each question and answer must be fifteen to twenty words. 
 
-    print('!!!!!!' + title)
+    Text: In common usage, a force is a push or a pull, as the examples in Figure 4.1 illustrate. In football, an offensive lineman pushes against his opponent. The tow bar attached to a speeding boat pulls a water skier. Forces such as those that push against the football player or pull the skier are called contact forces, because they arise from the physical contact between two objects. There are circumstances, however, in which two objects exert forces on one another even though they are not touching. Such forces are referred to as noncontact forces or action-at-a-distance forces. One example of such a noncontact force occurs when a diver is pulled toward the earth because of the force of gravity. 
+    Question:
+    - What is a force?
+    Answer:
+    - A force is a push or a pull.
+    Question:
+    - What are contact forces?
+    Answer:
+    - Contact forces are forces that arise from the physical contact between two objects.
+    Question:
+    - What are action-at-a-distance forces?
+    Answer:
+    - Forces resulting between two object even though they are not touching
+
+    Text: Physical and chemical changes are a manifestation of physical and chemical properties. A physical property is one that a substance displays without changing its composition, whereas a chemical property is one that a substance displays only by changing its composition via a chemical change. The smell of gasoline is a physical property-gasoline does not change its composition when it exhibits its odour. The combustibility of gasoline, in contrast, is a chemical property- gasoline does change its composition when it burns, turning into completely new substances (primarily carbon dioxide and water). Physical properties include odour, taste, colour, appearance, melting point, boiling point, and density. Chemical properties include corrosiveness, flammability, acidity, toxicity, and other such characteristics
+    Question:
+    - What are chemical properties?
+    Answer:
+    - A property that a substance displays only by changing its composition
+    Question:
+    - What are physical properties?
+    Answer:
+    - A property that a substance displays without changing its composition
+    Question:
+    - List chemical properties
+    Answer:
+    - Chemical properties include corrosiveness, flammability, acidity, and toxicity
+
+    Text: {text}
+    """
+
+    #currently fixing the input to improve
 
     response = co.generate(
         model="command-nightly", 
         prompt=prompt,
-        max_tokens=600
+        max_tokens=250,
+        temperature = 0
     )
 
     # Raw data from cohere
@@ -53,27 +78,34 @@ def build_deck(text, title = ""):
         "cards": [],
         "title": "temptitle"
     }
-    #TODO ADD DECK TITLE
 
-    print(lines)
+    for i in range(0, len(lines), 2):
+        json['cards'].append({
+            'question': lines[i].replace('- ', ''),
+            'answer': lines[i + 1].replace('Answer: ', '')
+        })
+
+    print(json)
 
     # Iterate through the lines
-    for line in lines:
-        # If the line contains question, then it is a question card
-        if "question" in line.lower():
-            # Add the question card to the deck
-            try:
-                print("Question: " + line)
-                # Iterate to the next line to find the answer
-                print("Answer: " + lines[lines.index(line) + 1])
-                # Add the answer card to the deck
-                json["cards"].append({
-                    "question": line.replace("Question", "").replace(": ", "").replace("question", ""),
-                    "answer": lines[lines.index(line) + 1].replace("Answer", "").replace(":", "").replace("answer", "")
-                })
-            except:
-                pass
-    return json 
+    # for line in lines:
+    #     If the line contains question, then it is a question card
+    #     if "question" in line.lower():
+    #         Add the question card to the deck
+    #         try:
+    #             print("Question: " + line)
+    #             Iterate to the next line to find the answer
+    #             print("Answer: " + lines[lines.index(line) + 1])
+    #             Add the answer card to the deck
+    #             json["cards"].append({
+    #                 "question": line.replace("Question", "").replace(": ", "").replace("question", ""),
+    #                 "answer": lines[lines.index(line) + 1].replace("Answer", "").replace(":", "").replace("answer", "")
+    #             })
+    #         except:
+    #             pass
+    # return json 
+
+    return json
 
 app = Flask(__name__)
 CORS(app)
@@ -190,8 +222,8 @@ def question():
     Questions:
     - What are chemical properties?
     - What are physical properties? 
-    - List one example of a chemical property
-    - List one example of a physical property 
+    - List physical properties
+    - List chemical properties 
 
     Text: {text}
     Questions:
@@ -204,7 +236,7 @@ def question():
         temperature=0
     )
 
-    print(prompt)
+    # print(prompt)
 
     raw_data = ""
 
